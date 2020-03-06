@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: Snakemake workflow for RNASeq read count
+
+properties:
+  design:
+    type: string
+    description: Path to design file
+    default: design.tsv
+  workdir:
+    type: string
+    description: Path to working directory
+    default: .
+  threads:
+    type: integer
+    description: Maximum number of threads used
+    default: 1
+  singularity_docker_image:
+    type: string
+    description: Image used within Singularity
+    default: docker://continuumio/miniconda3:4.4.10
+  cold_storage:
+    type: array
+    description: A list of path which are not open for intensive IO process
+    default: NONE
+    items:
+      type: string
+    uniqueItems: true
+    minItems: 1
+  rna_count_directory:
+    type: string
+    description: Path to the rna-count-salmon working directory
+    default: "rna-count-salmon-results"
+
+ref:
+  type: object
+  proprerties:
+    fasta:
+      type: string
+      description: A path to a fasta-formatted genome sequence
+    gtf:
+      type: string
+      description: A path to a GTF formatted genome annotation (NO GFF)
+  required:
+    - fasta
+
+params:
+  type: object
+  description: Optional arguments for each rule
+  copy_extra:
+    type: string
+    description: Extra parameters for bash cp
+    default: "--verbose --update"
+  salmon_index_extra:
+    type: string
+    description: Extra parameters for salmon index rule
+    default: "--keepDuplicates --gencode --perfectHash"
+  salmon_quant_extra:
+    type: string
+    description: Extra parameters for salmon quant rule
+    default: "--numBootstraps 100 --validateMappings --gcBias --seqBias"
+  library:
+    type: string
+    description: "Library type as defined by Salmon"
+    default: "A"
+
+required:
+  - ref
+  - workdir
+  - threads
+  - singularity_docker_image
+  - design
+  - cold_storage

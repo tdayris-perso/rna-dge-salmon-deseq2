@@ -1,0 +1,25 @@
+cold_storage:
+- ' '
+design: design.tsv
+params:
+  models:
+    condition: "~Cond"
+    nesting: "~Nest+Cond"
+  formulas: ' \~1 '
+  libType: ISF
+  salmon_index_extra: ' --kmerLen 5 '
+  salmon_quant_extra: ' --noBiasLengthThreshold --minAssignedFrags 1 --noEffectiveLengthCorrection
+    --noLengthCorrection --fasterMapping --noFragLengthDist --allowDovetail --numPreAuxModelSamples
+    0 --numAuxModelSamples 0 '
+ref:
+  fasta: /home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/rna-count-salmon/tests/genomes/transcriptome.fasta
+  gtf: /home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/rna-count-salmon/tests/genomes/transcriptome.gtf
+rna_count_directory: rna-count-salmon-results
+singularity_docker_image: docker://continuumio/miniconda3:4.4.10
+threads: 1
+workdir: tests
+workflow:
+  aggregate: true
+  fastqc: true
+  multiqc: true
+  no_qc_graphs: false
