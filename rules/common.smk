@@ -4,24 +4,30 @@ one gathers all the python instructions surch as config mappings or input
 validations.
 """
 
-from snakemake.utils import validate
-from typing import Any, Dict, List, Union
-
-import os.path as op    # Path and file system manipulation
 import os               # OS related operations
-import pandas as pd     # Deal with TSV files (design)
+import os.path as op    # Path and file system manipulation
 import sys              # System related operations
 
+
+from typing import Any, Dict, List     # Give IO information
+import pandas as pd                    # Deal with TSV files (design)
+from snakemake.utils import validate   # Check Yaml/TSV formats
+
+
+try:
+    from common_rna_dge_salmon_deseq2 import *
+except ImportError:
+    raise
+
 # Snakemake-Wrappers version
-# WARNING: Don't forget to agree this with subworkflows !
-swv = "0.49.0"
+wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.49.0"
 # github prefix
 git = "https://raw.githubusercontent.com/tdayris-perso/snakemake-wrappers"
 
 # Loading configuration
-configfile: "config.yaml"
+if config == dict():
+    configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
-
 
 # Loading deisgn file
 design = pd.read_csv(
@@ -37,73 +43,12 @@ validate(design, schema="../schemas/design.schema.yaml")
 report: "../report/general.rst"
 
 
-def sample_id() -> List[str]:
+def get_rdsd_targets(get_tximport: bool = False) -> Dict[str, Any]:
     """
-    Return the list of samples identifiers
+    This function retuans the targets of the snakefile
+    according to the users requests
     """
-    return design["Sample_id"].tolist()
-
-
-def get_quant_files() -> List[Union[str, Path]]:
-    """
-    This function returns the list of all quantifications files prduced
-    by Salmon in the rna-count-salmon pipeline
-    """
-    return expand(
-        "pseudo_mapping/{sample}/quant.sf",
-        sample=sample_id_list
-    )
-
-
-def get_fodmula_w(wildcards) -> str:
-    """
-    Return a formula based on a model name
-    """
-    return config["params"]["models"][wildcards.model]
-
-
-def get_targets() -> Dict[str, Any]:
-    """
-    This function call final files
-    """
-    print(config["params"])
-    results = {
-        # "quant": quant_file_list,
-        # "txi": "tximport/txi.RDS",
-        # "datasets": expand(
-        #     "deseq2/DESeq2_Dataset_{model}.RDS",
-        #     model=config["params"]["models"].keys()
-        # ),
-        # "size_factors": expand(
-        #     "deseq2/size_factors/{model}.RDS",
-        #     model=config["params"]["models"].keys()
-        # ),
-        # "dispersions": expand(
-        #     "deseq2/disp_estimate/{model}.RDS",
-        #     model=config["params"]["models"].keys()
-        # ),
-        "wald": expand(
-            "deseq2/wald_test/{model}.RDS",
-            model=config["params"]["models"].keys()
-        ),
-        # "deseq2_vsd": expand(
-        #     "deseq2/vsd/{model}.RDS",
-        #     model=config["params"]["models"].keys()
-        # ),
-        "pcaexplorer_annotation": expand(
-            "pcaexplorer/{model}/annotation_{model}.RDS",
-            model=config["params"]["models"].keys()
-        ),
-        "pcaexplorer_limmago": expand(
-            "pcaexplorer/{model}/limmago_{model}.RDS",
-            model=config["params"]["models"].keys()
-        )
-
-
-    }
-    return results
-
-
-sample_id_list = sample_id()
-quant_file_list = get_quant_files()
-targets_dict = get_targets()
+    targets = {}
+    if get_tximport is True:
+        targets["tximport"] = "tximport/txi.RDS"
+    return targets

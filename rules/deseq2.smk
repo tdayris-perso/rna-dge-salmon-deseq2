@@ -1,159 +1,141 @@
 """
-This rule creates a DESeq2 dataset from a tximport RDS object
+This rule builds a DESeq2 dataset from a tximport object
+More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq2_dataset/bio/deseq2/DESeqDataSetFromTximport
 """
-rule deseq2_dataset_from_tximport:
+rule DESeqDatasetFromTximport:
     input:
-        tximport = "tximport/txi.RDS",
+        tximport = "tximport/txi.RDS"
         coldata = config["design"]
     output:
-        dds = temp("deseq2/datasets/{model}.RDS")
+        dds = temp("deseq2/{design}/dds.RDS")
     message:
-        "Building DESeq2 dataset from tximport for {wildcards.model} "
-        "({params.design})"
+        "Building DESeq2 dataset from tximport on {wildcards.design}"
     threads:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 1024, 20480)
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
         ),
         time_min = (
-            lambda wildcards, attempt: min(10 + (attempt * 20), 50)
+            lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
         design = (
-            lambda wildcards: get_fodmula_w(wildcards)
+            lambda wildcards: config["formulas"][wildcards.design]
         )
-    conda:
-        "../envs/Renv.yaml"
     log:
-        "logs/deseq2/datasets/{model}.log"
-    wildcard_constraints:
-        model = "|".join([i for i in config["params"]["models"].keys()])
+        "logs/deseq2/DESeqDatasetFromTximport/{design}.log"
     wrapper:
-        f"{git}/deseq2_dataset/bio/deseq2/DESeqDataSetFromTximport"
+        f"{git}/deseq2_dataset/bio/deseq2/DESeqDataSetFromTximport/"
 
 
 """
-This rules computes size factors from a DESeq2 dataset
+This rule estimates size factors from a DESeq2 dataset
+More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq2-estimateSizeFactors/bio/deseq2/estimateSizeFactors
 """
-rule deseq2_size_factors:
+rule estimateSizeFactors:
     input:
-        dds = "deseq2/datasets/{model}.RDS"
+        dds = "deseq2/{design}/dds.RDS"
     output:
-        dds = temp("deseq2/size_factors/{model}.RDS")
+        dds = temp("deseq2/{design}/estimatedSizeFactord.RDS")
     message:
-        "Estimating size factors for {wildcards.model}"
+        "Estimating size factors on {wildcards.design}"
     threads:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 3072, 20480)
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
         ),
         time_min = (
-            lambda wildcards, attempt: min(20 + (attempt * 10), 50)
+            lambda wildcards, attempt: min(attempt * 20, 200)
         )
-    conda:
-        "../envs/Renv.yaml"
-    params:
-        extra = config["params"].get(
-            "locfunc",
-            "locfunc=base::eval(base::as.name('median'))"
-        )
+    group:
+        "deseq2-estimations"
     log:
-        "logs/deseq2/size_factors/{model}.log"
-    wildcard_constraints:
-        model = "|".join([i for i in config["params"]["models"].keys()])
+        "logs/deseq2/estimateSizeFactors/{design}.log"
     wrapper:
         f"{git}/deseq2-estimateSizeFactors/bio/deseq2/estimateSizeFactors"
 
 
 """
-This rule estimates dispersion among samples based on ad DESeq2 dataset
+This rule estimates sample dispersion from a deseq2 dataset
+More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq2-disp.R/bio/deseq2/estimateDispersions
 """
-rule deseq2_estimate_dispersion:
+rule estimateDispersions:
     input:
-        dds = "deseq2/size_factors/{model}.RDS"
+        dds = "deseq2/{design}/estimatedSizeFactors.RDS"
     output:
-        disp = temp("deseq2/disp_estimate/{model}.RDS")
+        disp = temp("deseq2/{design}/estimatedDispersions.RDS")
     message:
-        "Estimating dispersions for {wildcards.model}"
+        "Estimating dispersions in {wildcards.design}"
     threads:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 3072, 20480)
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
         ),
         time_min = (
-            lambda wildcards, attempt: min(20 + (attempt * 10), 50)
+            lambda wildcards, attempt: min(attempt * 20, 200)
         )
-    conda:
-        "../envs/Renv.yaml"
-    params:
-        extra = config["params"].get("fittype", "fitType='mean'")
+    group:
+        "deseq2-estimations"
     log:
-        "logs/deseq2/dispersions/{model}.log"
-    wildcard_constraints:
-        model = "|".join([i for i in config["params"]["models"].keys()])
+        "logs/deseq2/estimateDispersions/{design}.log"
     wrapper:
         f"{git}/deseq2-disp.R/bio/deseq2/estimateDispersions"
 
+
 """
-This rule performs the negative binomial tests to find differentially
-expressed genes
+This rule computes Variance Stabilized Transformation on a DESeq2 dataset
+More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq2-vst/bio/deseq2/vst
 """
-rule deseq2_wald_test:
+rule vst:
     input:
-        dds = "deseq2/disp_estimate/{model}.RDS"
+        dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:
-        rds = "deseq2/wald_test/{model}.RDS",
-        tsv = directory("deseq2/wald_test/{model}_TSV/")
+        rds = "deseq2/{design}/VST.RDS",
+        tsv = temp("deseq2/{design}/VST.tsv")
     message:
-        "Testing differentially expressed genes according to {wildcards.model}"
+        "Building variance stabilized transformation over {wildcards.design}"
     threads:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 4096, 20480)
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
         ),
         time_min = (
-            lambda wildcards, attempt: min(30 + (attempt * 10), 80)
+            lambda wildcards, attempt: min(attempt * 20, 200)
         )
-    conda:
-        "../envs/Renv.yaml"
+    group:
+        "deseq2-estimations"
     log:
-        "logs/deseq2/wald_test/{model}.log"
-    wildcard_constraints:
-        model = "|".join([i for i in config["params"]["models"].keys()])
-    wrapper:
-        f"{git}/deseq2-waldtest/bio/deseq2/nbinomWaldTest"
-
-
-"""
-This rule computes variant stabilized transformation on counts, based on
-previous estimations
-"""
-rule deseq2_vst:
-    input:
-        dds = "deseq2/disp_estimate/{model}.RDS"
-    output:
-        rds = "deseq2/vsd/{model}.RDS",
-        tsv = "deseq2/vsd/{model}.tsv"
-    message:
-        "Building variant stabilized data on {wildcards.model}"
-    threads:
-        1
-    resources:
-        mem_mb = (
-            lambda wildcards, attempt: min(attempt * 4096, 20480)
-        ),
-        time_min = (
-            lambda wildcards, attempt: min(30 + (attempt * 10), 80)
-        )
-    conda:
-        "../envs/Renv.yaml"
-    log:
-        "logs/deseq2/vst/{model}.log"
-    wildcard_constraints:
-        model = "|".join([i for i in config["params"]["models"].keys()])
+        "logs/deseq2/vst/{design}.log"
     wrapper:
         f"{git}/deseq2-vst/bio/deseq2/vst"
+
+
+"""
+This rule performs a wald test on a DESeq2 dataset.
+More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/deseq2-waldtest/bio/deseq2/nbinomWaldTest
+"""
+rule nbinomWaldTest:
+    input:
+        dds = "deseq2/{design}/VST.RDS"
+    output:
+        rds = "deseq2/{design}/Wald.RDS",
+        tsv = "deseq2/{design}/Wald.tsv"
+    message:
+        "Performing Wald tests over {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 3072, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 40, 200)
+        )
+    log:
+        "logs/deseq2/nbinomWaldTest/{design}.log"
+    wrapper:
+        f"{git}/deseq2-waldtest/bio/deseq2/nbinomWaldTest"

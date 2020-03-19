@@ -1,43 +1,44 @@
 """
-This rule reads all the quantifications files given as input and return
-a RDS file with all required information to perform further R analyses.
-See more information at:
-https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/tximport
+This rule import salmon counts and possible inferential replicates
+with R for further DESeq2 analysis
 """
 rule tximport:
     input:
-        quant = rnacountsalmon(quant_file_list),
-        tx_to_gene = "deseq2/tx2gene.tsv"
+        tx2gene = "tximport/tx2gene.tsv",
+        quand = design.Salmon_quant
     output:
-        txi = "tximport/txi.RDS"
+        txi = temp("tximport/txi.RDS")
     message:
-        "Importing quantification results within R"
+        "Importing Salmon counts in R"
     threads:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 20480)
+            lambda wildcards, attempt: min(attempt * 4096, 10240)
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 30, 120)
+            lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
         extra = config["params"].get(
-            "tximport",
+            "tximport_extra",
             "type = 'salmon', txOut = TRUE"
         )
+    log:
+        "logs/tximport.log"
     wrapper:
-        f"{git}/master/bio/tximport"
+        f"{wrapper_version}/bio/tximport/"
 
 
 """
-This rule produces a transcript to gene table formatted as required by tximport
+This rule builds a super-set ot the tx2gene table required by tximport, from
+a GTF file.
 """
 rule tx2gene:
     input:
-        gtf = rnacountsalmon("aggregated_salmon_counts/tr2gene.tsv")
+        gtf = get_gtf_path(config)
     output:
-        tsv = "deseq2/tx2gene.tsv"
+        tsv = temp("tximport/tr2gene.tsv")
     message:
         "Building transcript to gene table for Tximport"
     threads:
@@ -49,11 +50,36 @@ rule tx2gene:
         time_min = (
             lambda wildcards, attempt: min(attempt * 10, 20)
         )
+    group:
+        "tx2gene"
     log:
-        "logs/tx2gene.log"
+        "logs/tx2gene/tx_to_gene.log"
+    wrapper:
+        f"{git}/tx_to_tgene/bio/tx_to_gene/gtf"
+
+
+"""
+This rule subsets the previous output in order to fit tximport's requirements
+"""
+rule tx2gene_subset:
+    input:
+        "tximport/tr2gene.tsv"
+    output:
+        temp("tximport/tx2gene.tsv")
+    message:
+        "Subsetting the tr2gene table"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 128, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 5, 200)
+        )
+    group:
+        "tx2gene"
+    log:
+        "logs/tx2gene/subset.log"
     shell:
-        "awk 'BEGIN{{FS=\"\t\"}} "
-        "{{print $1 FS $2}}' "
-        "{input.gtf} "
-        "> {output.tsv} "
-        "2> {log}"
+        "cut -f 1,3 {input} > {output} 2> {log}"

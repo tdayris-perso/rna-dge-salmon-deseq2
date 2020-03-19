@@ -8,25 +8,14 @@ if sys.version_info < (3, 7):
 # Snakemake 5.10.0 at least is required
 snakemake.utils.min_version("5.10.0")
 
-# include: "rna-count-salmon/rules/common.smk"
-# include: "rna-count-salmon/rules/copy.smk"
-# include: "rna-count-salmon/rules/fastqc.smk"
-# include: "rna-count-salmon/rules/multiqc.smk"
-# include: "rna-count-salmon/rules/salmon.smk"
-# include: "rna-count-salmon/rules/aggregation.smk"
-
-# workdir: config["workdir"]
-# singularity: config["singularity_docker_image"]
-# localrules: copy_fastq, copy_extra
 
 include: "rules/common.smk"
-include: "rules/rna-count-salmon.smk"
+include: "rules/copy.smk"
 include: "rules/tximport.smk"
-include: "rules/deseq2.smk"
-include: "rules/pcaExplorer.smk"
+
 
 rule all:
     input:
-        **targets_dict
+        **get_rdsd_targets(get_tximport = True)
     message:
         "Finishing the differential gene expression pipeline"
