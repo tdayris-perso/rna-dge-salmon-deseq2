@@ -1,4 +1,0 @@
-[submodule "rna-count-salmon"]
-  path = rna-count-salmon
-  url = https://github.com/tdayris-perso/rna-count-salmon.git
-  branch = master

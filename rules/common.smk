@@ -20,7 +20,7 @@ except ImportError:
     raise
 
 # Snakemake-Wrappers version
-wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.49.0"
+wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.50.3"
 # github prefix
 git = "https://raw.githubusercontent.com/tdayris-perso/snakemake-wrappers"
 
@@ -43,7 +43,8 @@ validate(design, schema="../schemas/design.schema.yaml")
 report: "../report/general.rst"
 
 
-def get_rdsd_targets(get_tximport: bool = False) -> Dict[str, Any]:
+def get_rdsd_targets(get_tximport: bool = False,
+                     get_deseq2: bool = False) -> Dict[str, Any]:
     """
     This function retuans the targets of the snakefile
     according to the users requests
@@ -51,4 +52,10 @@ def get_rdsd_targets(get_tximport: bool = False) -> Dict[str, Any]:
     targets = {}
     if get_tximport is True:
         targets["tximport"] = "tximport/txi.RDS"
+
+    if get_deseq2 is True:
+        targets["deseq2_dds"] = expand(
+            "deseq2/{design}/Wald.RDS",
+            design=config["models"].keys()
+        )
     return targets

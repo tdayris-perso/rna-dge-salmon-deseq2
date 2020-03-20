@@ -44,6 +44,23 @@ def parser() -> argparse.ArgumentParser:
                " configuration file!"
     )
 
+    # Mendatory arguments
+    main_parser.add_argument(
+        "--formulas",
+        help="space separated list of R formulas designed to build linear "
+             "model on your data (use simple commas to avoid bash expension)",
+        nargs="+",
+        default=['~Condition']
+    )
+
+    main_parser.add_argument(
+        "--model-name",
+        help="Space separated list of model names. Each of these name should "
+             "correspond to a single formula. Each name should be unique",
+        nargs="+",
+        default=["Condition_model"]
+    )
+
     # Opitional arguments
     main_parser.add_argument(
         "--results-config",
@@ -156,6 +173,11 @@ def args_to_dict(args: argparse.ArgumentParser,
         "params": {
             "copy_extra": args.copy_extra,
             "tximport_extra": args.tximport_extra
+        },
+        "models": {
+            name: formula
+            for name, formula
+            in zip(args.model_name, args.formulas)
         }
     }
 
@@ -255,7 +277,7 @@ if __name__ == '__main__':
     logging.basicConfig(
         filename="logs/prepare/config.log",
         filemode="w",
-        level=logging.DEBUG
+        level=10
     )
 
     try:

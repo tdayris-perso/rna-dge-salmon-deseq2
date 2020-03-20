@@ -4,7 +4,7 @@ More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq
 """
 rule DESeqDatasetFromTximport:
     input:
-        tximport = "tximport/txi.RDS"
+        tximport = "tximport/txi.RDS",
         coldata = config["design"]
     output:
         dds = temp("deseq2/{design}/dds.RDS")
@@ -21,7 +21,7 @@ rule DESeqDatasetFromTximport:
         )
     params:
         design = (
-            lambda wildcards: config["formulas"][wildcards.design]
+            lambda wildcards: config["models"][wildcards.design]
         )
     log:
         "logs/deseq2/DESeqDatasetFromTximport/{design}.log"
@@ -37,7 +37,7 @@ rule estimateSizeFactors:
     input:
         dds = "deseq2/{design}/dds.RDS"
     output:
-        dds = temp("deseq2/{design}/estimatedSizeFactord.RDS")
+        dds = temp("deseq2/{design}/estimatedSizeFactors.RDS")
     message:
         "Estimating size factors on {wildcards.design}"
     threads:
@@ -106,6 +106,8 @@ rule vst:
         time_min = (
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
+    params:
+        extra = "nsub = 10, fitType = 'local'"
     group:
         "deseq2-estimations"
     log:
@@ -120,10 +122,10 @@ More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/deseq
 """
 rule nbinomWaldTest:
     input:
-        dds = "deseq2/{design}/VST.RDS"
+        dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:
         rds = "deseq2/{design}/Wald.RDS",
-        tsv = "deseq2/{design}/Wald.tsv"
+        tsv = directory("deseq2/{design}/TSV/")
     message:
         "Performing Wald tests over {wildcards.design}"
     threads:

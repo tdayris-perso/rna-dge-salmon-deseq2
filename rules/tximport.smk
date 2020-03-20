@@ -4,8 +4,8 @@ with R for further DESeq2 analysis
 """
 rule tximport:
     input:
-        tx2gene = "tximport/tx2gene.tsv",
-        quand = design.Salmon_quant
+        tx_to_gene = "tximport/tx2gene.tsv",
+        quant = expand("{dir}/quant.sf", dir = design.Salmon_quant)
     output:
         txi = temp("tximport/txi.RDS")
     message:
@@ -27,7 +27,7 @@ rule tximport:
     log:
         "logs/tximport.log"
     wrapper:
-        f"{wrapper_version}/bio/tximport/"
+        f"{wrapper_version}/bio/tximport"
 
 
 """
@@ -82,4 +82,4 @@ rule tx2gene_subset:
     log:
         "logs/tx2gene/subset.log"
     shell:
-        "cut -f 1,3 {input} > {output} 2> {log}"
+        "cut -f 2,3 {input} | sort | uniq > {output} 2> {log}"
