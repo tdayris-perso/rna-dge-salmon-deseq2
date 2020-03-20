@@ -4,7 +4,10 @@ More information at: https://github.com/tdayris-perso/snakemake-wrappers/blob/pa
 """
 rule aggregate:
     input:
-        quant = expand("pseudo_mapping/{sample}/quant.genes.sf"),
+        quant = expand(
+            "{dir}/quant.genes.sf",
+            dir=design.Salmon_quant.tolist()
+        ),
         tx2gene = "tximport/tr2gene.tsv"
     output:
         tsv = "aggrgated_counts/TPM.tsv"
@@ -22,7 +25,8 @@ rule aggregate:
     params:
         gencode = True,
         drop_na = True,
-        drop_null = True
+        drop_null = True,
+        genes = True
     log:
         "logs/aggregate.log"
     wrapper:
@@ -95,7 +99,14 @@ rule pandas_pca:
     input:
         counts = "aggrgated_counts/TPM.tsv"
     output:
-        png = "figure/PCA/PCA_{factor}.png"
+        png = expand(
+            "figures/PCA/PCA_{factor}_{axes}.png",
+            axes=[
+                f"PC{i}_PC{j}"
+                for i, j in itertools.permutations(range(1, 4, 1), 2)
+            ],
+            allow_missing=True
+        )
     message:
         "Plotting PCA"
     threads:
@@ -110,7 +121,13 @@ rule pandas_pca:
     group:
         "seaborn-diff"
     params:
-        conditions = get_condition_dict_w(wildcards)
+        conditions = (
+            lambda wildcards: get_condition_dict_w(wildcards.factor, design)
+        ),
+        prefix = (
+            lambda wildcards: f"figures/PCA/PCA_{wildcards.factor}"
+        ),
+        samples_names = True
     log:
         "logs/pandas_pca/{factor}.log"
     wrapper:
@@ -140,7 +157,9 @@ rule clustermap:
     group:
         "seaborn-diff"
     params:
-        conditions = get_condition_dict_w(wildcards)
+        conditions = (
+            lambda wildcards: get_condition_dict_w(wildcards.factor)
+        )
     log:
         "logs/clustermap/{design}.log"
     wrapper:

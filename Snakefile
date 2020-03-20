@@ -13,11 +13,13 @@ include: "rules/common.smk"
 include: "rules/copy.smk"
 include: "rules/tximport.smk"
 include: "rules/deseq2.smk"
+include: "rules/pandas.smk"
 
 
 rule all:
     input:
-        **get_rdsd_targets(get_tximport = False,
-                           get_deseq2 = True)
+        **get_rdsd_targets(get_deseq2 = True,
+                           get_aggregation = True,
+                           get_plots = True)
     message:
         "Finishing the differential gene expression pipeline"

@@ -4,6 +4,7 @@ one gathers all the python instructions surch as config mappings or input
 validations.
 """
 
+import itertools        # Handle iterators
 import os               # OS related operations
 import os.path as op    # Path and file system manipulation
 import sys              # System related operations
@@ -44,12 +45,16 @@ report: "../report/general.rst"
 
 
 def get_rdsd_targets(get_tximport: bool = False,
-                     get_deseq2: bool = False) -> Dict[str, Any]:
+                     get_deseq2: bool = False,
+                     get_aggregation: bool = False,
+                     get_plots: bool = False) -> Dict[str, Any]:
     """
     This function retuans the targets of the snakefile
     according to the users requests
     """
     targets = {}
+    reserved = {"Sample_id", "Upstream_file",
+                "Downstream_file", "Salmon_quant"}
     if get_tximport is True:
         targets["tximport"] = "tximport/txi.RDS"
 
@@ -57,5 +62,22 @@ def get_rdsd_targets(get_tximport: bool = False,
         targets["deseq2_dds"] = expand(
             "deseq2/{design}/Wald.RDS",
             design=config["models"].keys()
+        )
+
+    if get_aggregation is True:
+        targets["aggrgation"] = "aggrgated_counts/TPM.tsv"
+
+    if get_plots is True:
+        targets["plots"] = [
+            "figures/Box_plot_non_null_counts.png",
+            "figures/pairwise_scatterplot.png"
+        ]
+        targets["pca"] = expand(
+            "figures/PCA/PCA_{factor}_{axes}.png",
+            axes=[
+                f"PC{i}_PC{j}"
+                for i, j in itertools.permutations(range(1, 4, 1), 2)
+            ],
+            factor=set(design.columns) - reserved
         )
     return targets
