@@ -80,4 +80,8 @@ def get_rdsd_targets(get_tximport: bool = False,
             ],
             factor=set(design.columns) - reserved
         )
+        targets["clustermaps"] = expand(
+            "figure/Clustermap/Clustered_heatmap_{factor}.png",
+            factor=set(design.columns) - reserved
+        )
     return targets

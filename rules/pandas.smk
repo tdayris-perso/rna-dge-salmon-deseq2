@@ -142,7 +142,7 @@ rule clustermap:
     input:
         counts = "aggrgated_counts/TPM.tsv"
     output:
-        png = "figure/Clustermap/Clustered_heatmap_{design}.png"
+        png = "figures/Clustermap/Clustered_heatmap_{factor}.png"
     message:
         "Building a clustered heatmap on TPM counts"
     threads:
@@ -158,9 +158,9 @@ rule clustermap:
         "seaborn-diff"
     params:
         conditions = (
-            lambda wildcards: get_condition_dict_w(wildcards.factor)
+            lambda wildcards: get_condition_dict_w(wildcards.factor, design)
         )
     log:
-        "logs/clustermap/{design}.log"
+        "logs/clustermap/{factor}.log"
     wrapper:
         f"{git}/pandas-merge/bio/seaborn/clustermap"
