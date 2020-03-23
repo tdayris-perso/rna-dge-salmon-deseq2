@@ -19,10 +19,21 @@ If you need any other information, please read the `Frequently Asked questions <
 Citations:
 ##########
 
+Whole pipeline:
+  Love, Michael I., Charlotte Soneson, and Rob Patro. "Swimming downstream: statistical analysis of differential transcript usage following Salmon quantification." F1000Research 7 (2018).
+
+  https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html
+
 MultiQC
   EWELS, Philip, MAGNUSSON, Måns, LUNDIN, Sverker, et al. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 2016, vol. 32, no 19, p. 3047-3048.
 
   https://multiqc.info/
+
+
+EnhancedVolcano
+  Blighe, K. "Enhancedvolcano: Publication-ready volcano plots with enhanced colouring and labeling." (2018).
+
+  https://github.com/kevinblighe
 
 FastQC
   ANDREWS, Simon, et al. FastQC: a quality control tool for high throughput sequence data. 2010.
