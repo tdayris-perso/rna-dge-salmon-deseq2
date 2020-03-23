@@ -138,7 +138,7 @@ rule pandas_pca:
 This rule performs a clustered heatmap based on TPM counts
 More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/pandas-merge/bio/seaborn/clustermap
 """
-rule clustermap:
+rule clustermap_samples:
     input:
         counts = "aggrgated_counts/TPM.tsv"
     output:
@@ -164,3 +164,57 @@ rule clustermap:
         "logs/clustermap/{factor}.log"
     wrapper:
         f"{git}/pandas-merge/bio/seaborn/clustermap"
+
+
+"""
+This rule creates a png image of the pvalue repartition across 0.1-discetized
+histogramm
+More information at: https://github.com/tdayris-perso/snakemake-wrappers/tree/pandas-merge/bio/seaborn/pval-histogram
+"""
+rule pval_histogram:
+    input:
+        deseq2 = "deseq2/{design}/TSV/Deseq2_{name}.tsv"
+    output:
+        png = "figures/pval_histogram/{design}/{name}_pval_histogram.png"
+    message:
+        "Building Adjusted P-Value histogram for {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    log:
+        "logs/pval_histogram/{design}_{name}.log"
+    wrapper:
+        f"{git}/pandas-merge/bio/seaborn/pval-histogram"
+
+
+"""
+This rule archies all images into a single tarball
+"""
+rule figures_archive:
+    input:
+        pval_histograms = lambda wildcards: deseq2_png(wildcards)
+    output:
+        "figures.{design}.tar.bz2"
+    message:
+        "Tar bzipping all images for {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    conda:
+        "../envs/bash.yaml"
+    log:
+        "logs/figures_archive/{design}.log"
+    shell:
+        "tar -cvjf {output} {input.pval_histograms} > {log} 2>&1"

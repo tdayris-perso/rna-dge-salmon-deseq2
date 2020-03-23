@@ -120,7 +120,7 @@ rule vst:
 This rule performs a wald test on a DESeq2 dataset.
 More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/deseq2-waldtest/bio/deseq2/nbinomWaldTest
 """
-rule nbinomWaldTest:
+checkpoint nbinomWaldTest:
     input:
         dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:

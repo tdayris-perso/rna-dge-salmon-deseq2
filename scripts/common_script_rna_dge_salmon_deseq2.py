@@ -52,5 +52,4 @@ def get_condition_dict_w(factor: Any, design) -> Dict[str, str]:
     Return a dictionnary with:
     sample_id : condition
     """
-
     return {k: v for k, v in zip(design["Sample_id"], design[factor])}

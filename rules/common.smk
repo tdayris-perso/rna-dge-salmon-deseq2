@@ -10,7 +10,8 @@ import os.path as op    # Path and file system manipulation
 import sys              # System related operations
 
 
-from typing import Any, Dict, List     # Give IO information
+from pathlib import Path
+from typing import Any, Dict, Generator, List     # Give IO information
 import pandas as pd                    # Deal with TSV files (design)
 from snakemake.utils import validate   # Check Yaml/TSV formats
 
@@ -44,6 +45,18 @@ validate(design, schema="../schemas/design.schema.yaml")
 report: "../report/general.rst"
 
 
+def deseq2_png(wildcards: Any) -> Generator[str, None, None]:
+    """
+    This function solves the checkpoint IO streams for Snakemake
+    """
+    tsvs = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "figures/pval_histogram/{design}/{name}_pval_histogram.png",
+        design=wildcards.design,
+        name=glob_wildcards(os.path.join(tsvs, "Deseq2_{name}.tsv")).name
+    )
+
+
 def get_rdsd_targets(get_tximport: bool = False,
                      get_deseq2: bool = False,
                      get_aggregation: bool = False,
@@ -68,6 +81,11 @@ def get_rdsd_targets(get_tximport: bool = False,
         targets["aggrgation"] = "aggrgated_counts/TPM.tsv"
 
     if get_plots is True:
+        targets["pval_histograms"] = expand(
+            "figures.{design}.tar.bz2",
+            design=config["models"].keys()
+        )
+
         targets["plots"] = [
             "figures/Box_plot_non_null_counts.png",
             "figures/pairwise_scatterplot.png"
