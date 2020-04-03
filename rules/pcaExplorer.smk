@@ -32,7 +32,7 @@ More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/pcaEx
 rule limma_pca_to_go:
     input:
         dds = "deseq2/{design}/dds.RDS",
-        dst = "deseq2/{design}/VST.RDS"
+        dst = "deseq2/{design}/rlog.RDS"
     output:
         limmago = "pcaExplorer/{design}/limmago.RDS"
     message:
