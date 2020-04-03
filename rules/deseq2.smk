@@ -26,7 +26,7 @@ rule DESeqDatasetFromTximport:
     log:
         "logs/deseq2/DESeqDatasetFromTximport/{design}.log"
     wrapper:
-        f"{git}/deseq2_dataset/bio/deseq2/DESeqDataSetFromTximport/"
+        f"{git}/deseq2_dataset/bio/deseq2/DESeqDataSetFromTximport"
 
 
 """
@@ -107,13 +107,44 @@ rule vst:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        extra = "nsub = 10, fitType = 'local'"
+        extra = "blind = TRUE, nsub = 10, fitType = 'local'"
     group:
         "deseq2-estimations"
     log:
         "logs/deseq2/vst/{design}.log"
     wrapper:
         f"{git}/deseq2-vst/bio/deseq2/vst"
+
+
+"""
+This rule computes rlog Transformation on a DESeq2 dataset
+More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq2-rlog/bio/deseq2/rlog
+"""
+rule rlog:
+    input:
+        dds = "deseq2/{design}/estimatedDispersions.RDS"
+    output:
+        rds = "deseq2/{design}/rlog.RDS",
+        tsv = temp("deseq2/{design}/rlog.tsv")
+    message:
+        "Building rlog transformation over {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    params:
+        extra = ""
+    group:
+        "deseq2-estimations"
+    log:
+        "logs/deseq2/rlog/{design}.log"
+    wrapper:
+        f"{git}/deseq2-rlog/bio/deseq2/rlog"
 
 
 """

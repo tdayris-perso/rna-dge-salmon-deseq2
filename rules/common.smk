@@ -60,7 +60,8 @@ def deseq2_png(wildcards: Any) -> Generator[str, None, None]:
 def get_rdsd_targets(get_tximport: bool = False,
                      get_deseq2: bool = False,
                      get_aggregation: bool = False,
-                     get_plots: bool = False) -> Dict[str, Any]:
+                     get_plots: bool = False,
+                     get_pca_explorer: bool = False) -> Dict[str, Any]:
     """
     This function retuans the targets of the snakefile
     according to the users requests
@@ -74,6 +75,11 @@ def get_rdsd_targets(get_tximport: bool = False,
     if get_deseq2 is True:
         targets["deseq2_dds"] = expand(
             "deseq2/{design}/Wald.RDS",
+            design=config["models"].keys()
+        )
+
+        targets["vst"] = expand(
+            "deseq2/{design}/rlog.RDS",
             design=config["models"].keys()
         )
 
@@ -99,7 +105,17 @@ def get_rdsd_targets(get_tximport: bool = False,
             factor=set(design.columns) - reserved
         )
         targets["clustermaps"] = expand(
-            "figure/Clustermap/Clustered_heatmap_{factor}.png",
+            "figures/Clustermap/Clustered_heatmap_{factor}.png",
             factor=set(design.columns) - reserved
         )
+
+    if get_pca_explorer is True:
+        targets["pcaexplorer_annot"] = expand(
+            "pcaExplorer/{design}/annotation.RDS",
+            design=config["models"].keys()
+        )
+        # targets["pcaExplorer_limmago"] = expand(
+        #     "pcaExplorer/{design}/limmago.RDS",
+        #     design=config["models"].keys()
+        # )
     return targets

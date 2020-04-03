@@ -159,6 +159,9 @@ rule clustermap_samples:
     params:
         conditions = (
             lambda wildcards: get_condition_dict_w(wildcards.factor, design)
+        ),
+        factor = (
+            lambda wildcards: wildcards.factor
         )
     log:
         "logs/clustermap/{factor}.log"
