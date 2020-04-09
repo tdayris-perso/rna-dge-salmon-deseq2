@@ -114,8 +114,8 @@ def get_rdsd_targets(get_tximport: bool = False,
             "pcaExplorer/{design}/annotation.RDS",
             design=config["models"].keys()
         )
-        # targets["pcaExplorer_limmago"] = expand(
-        #     "pcaExplorer/{design}/limmago.RDS",
-        #     design=config["models"].keys()
-        # )
+        targets["pcaExplorer_limmago"] = expand(
+            "pcaExplorer/{design}/limmago.RDS",
+            design=config["models"].keys()
+        )
     return targets

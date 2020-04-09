@@ -47,7 +47,10 @@ rule limma_pca_to_go:
             lambda wildcards, attempt: min(attempt * 35, 200)
         )
     params:
-        organism = config.get("organism", "Hs").capitalize()
+        extra = config["params"].get(
+            "limmaquickpca2go_extra",
+            "organism = 'Hs'"
+        )
     log:
         "logs/limma_pca_to_go/{design}.log"
     wrapper:
