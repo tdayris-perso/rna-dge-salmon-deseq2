@@ -44,10 +44,10 @@ rule estimateSizeFactors:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 20, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     group:
         "deseq2-estimations"
@@ -72,10 +72,10 @@ rule estimateDispersions:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 20, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     group:
         "deseq2-estimations"
@@ -101,10 +101,10 @@ rule vst:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 20, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     params:
         extra = "blind = TRUE, nsub = 10, fitType = 'local'"
@@ -132,10 +132,10 @@ rule rlog:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 20, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     params:
         extra = ""
@@ -163,10 +163,10 @@ checkpoint nbinomWaldTest:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 3072, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 40, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     log:
         "logs/deseq2/nbinomWaldTest/{design}.log"
