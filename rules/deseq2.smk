@@ -14,10 +14,10 @@ rule DESeqDatasetFromTximport:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 1024, 10240)
+            lambda wildcards, attempt: attempt * 8192
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 20, 200)
+            lambda wildcards, attempt: attempt * 20
         )
     params:
         design = (
