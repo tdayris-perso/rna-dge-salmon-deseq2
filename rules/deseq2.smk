@@ -219,7 +219,7 @@ rule DESeq2_report:
     log:
         "logs/DESeq2_report/Report_{design}_{name}.log"
     wrapper:
-        f"{git}/bio/deseq2/IGR_report"
+        f"{git}/bio/BiGR/deseq2_report"
 
 
 rule plotMA:
