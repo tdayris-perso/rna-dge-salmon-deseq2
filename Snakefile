@@ -12,6 +12,7 @@ snakemake.utils.min_version("5.10.0")
 include: "rules/common.smk"
 include: "rules/copy.smk"
 include: "rules/tximport.smk"
+include: "rules/gseaapp.smk"
 include: "rules/deseq2.smk"
 include: "rules/pandas.smk"
 include: "rules/pcaExplorer.smk"

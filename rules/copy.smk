@@ -27,4 +27,4 @@ rule copy_extra:
         extra = config["params"].get("copy_extra", ""),
         cold_storage = config.get("cold_storage", "NONE")
     wrapper:
-        f"{git}/cp/bio/cp"
+        f"{git}/bio/cp"

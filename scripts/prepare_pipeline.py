@@ -102,17 +102,98 @@ def parser() -> argparse.ArgumentParser:
     )
 
     main_parser.add_argument(
+        "--alpha-threshold",
+        help="The alpha error threshold (default: %(default)s)",
+        type=float,
+        default=0.05
+    )
+
+    main_parser.add_argument(
+        "--fc-threshold",
+        help="The Fold Change significance threshold"
+             " (default: %(default)s)",
+        type=float,
+        default=1.0
+    )
+
+    main_parser.add_argument(
         "--copy-extra",
-        help="Optional parameters for bash copy",
+        help="Optional parameters for bash copy"
+             " (default: %(default)s)",
         type=str,
         default="--verbose"
     )
 
     main_parser.add_argument(
         "--tximport-extra",
-        help="Optional parameters for tximport::tximport",
+        help="Optional parameters for tximport::tximport"
+             " (default: %(default)s)",
         type=str,
-        default="type = 'salmon', txOut = TRUE"
+        default="type = 'salmon', ignoreTxVersion = TRUE"
+    )
+
+    main_parser.add_argument(
+        "--deseq2-estimateSizeFactors-extra",
+        help="Extra parameters for estimateSizeFactors"
+             " (default: %(default)s)",
+        type=str,
+        default="quiet=FALSE"
+    )
+
+    main_parser.add_argument(
+        "--deseq2-estimateDispersions-extra",
+        help="Extra parameters for estimateDispersions"
+             " (default: %(default)s)",
+        type=str,
+        default="quiet=FALSE"
+    )
+
+    main_parser.add_argument(
+        "--deseq2-rlog-extra",
+        help="Extra parameters for rlog function"
+             " (default: %(default)s)",
+        type=str,
+        default="blind=FALSE"
+    )
+
+    main_parser.add_argument(
+        "--deseq2-nbinomWaldTest-extra",
+        help="Extra parameters for nbinomWaldTest"
+             " (default: %(default)s)",
+        type=str,
+        default="quiet=FALSE"
+    )
+
+    main_parser.add_argument(
+        "--limmaquickpca2go-extra",
+        help="Extra parameters for limmaquickpca2go"
+             " (default: %(default)s)",
+        type=str,
+        default="organism = 'Hs'"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-distro-expr-extra",
+        help="Extra parameters to plot expression "
+             " distribution (default: %(default)s)",
+        type=str,
+        default="plot_type='boxplot'"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-scree-extra",
+        help="Extra parameters for pca scree plot"
+             " (default: %(default)s)",
+        type=str,
+        default="pc_nr=10"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-pcacorrs-extra",
+        help="Extra parameters for pca correlations"
+             " (default: %(default)s)",
+        type=str,
+        default="logp=TRUE"
     )
 
     # Logging options
@@ -165,14 +246,25 @@ def args_to_dict(args: argparse.ArgumentParser,
         "cold_storage": args.cold_storage,
         "ref": old_config["ref"],
         "aggregation": {
-            "TPM": f"{agr_dir}/TPM.sf.annotated.tsv",
-            "TPM_Genes": f"{agr_dir}/TPM.genes.sf.annotated.tsv",
-            "Raw": f"{agr_dir}/NumReads.sf.annotated.tsv",
-            "Raw_Genes": f"{agr_dir}/NumReads.genes.sf.annotated.tsv"
+            "TPM_genes": f"{agr_dir}/TPM.genes.tsv",
+            "TPM": f"{agr_dir}/TPM.tsv",
+            "T2G": f"{agr_dir}/transcript_to_gene.tsv"
+        },
+        "thresholds": {
+            "alpha_threshold": args.alpha_threshold,
+            "fc_threshold": args.fc_threshold
         },
         "params": {
             "copy_extra": args.copy_extra,
-            "tximport_extra": args.tximport_extra
+            "tximport_extra": args.tximport_extra,
+            "DESeq2_estimateSizeFactors_extra": args.deseq2_estimateSizeFactors_extra,
+            "DESeq2_estimateDispersions_extra": args.deseq2_estimateDispersions_extra,
+            "DESeq2_rlog_extra": args.deseq2_rlog_extra,
+            "DESeq2_nbinomWaldTest_extra": args.deseq2_nbinomWaldTest_extra,
+            "limmaquickpca2go_extra": args.limmaquickpca2go_extra,
+            "pcaexplorer_distro_expr_extra": args.pcaexplorer_distro_expr_extra,
+            "pcaexplorer_scree_extra": args.pcaexplorer_scree_extra,
+            "pcaexplorer_pcacorrs_extra": args.pcaexplorer_pcacorrs_extra
         },
         "models": {
             name: formula

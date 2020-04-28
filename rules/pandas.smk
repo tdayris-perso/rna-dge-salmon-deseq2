@@ -26,11 +26,11 @@ rule aggregate:
         gencode = True,
         drop_na = True,
         drop_null = True,
-        genes = True
+        genes = False
     log:
         "logs/aggregate.log"
     wrapper:
-        f"{git}/pandas-merge/bio/pandas/salmon"
+        f"{git}/bio/pandas/salmon"
 
 
 """
@@ -60,7 +60,7 @@ rule box_counts:
     log:
         "logs/box_counts.log"
     wrapper:
-        f"{git}/pandas-merge/bio/seaborn/box-counts"
+        f"{git}/bio/seaborn/box-counts"
 
 
 """
@@ -88,7 +88,7 @@ rule pairwise_scatterplot:
     log:
         "logs/pairwise_scatterplot.log"
     wrapper:
-        f"{git}/pandas-merge/bio/seaborn/pairwise-scatterplot"
+        f"{git}/bio/seaborn/pairwise-scatterplot"
 
 
 """
@@ -131,7 +131,7 @@ rule pandas_pca:
     log:
         "logs/pandas_pca/{factor}.log"
     wrapper:
-        f"{git}/pandas-merge/bio/seaborn/pca"
+        f"{git}/bio/seaborn/pca"
 
 
 """
@@ -166,7 +166,7 @@ rule clustermap_samples:
     log:
         "logs/clustermap/{factor}.log"
     wrapper:
-        f"{git}/pandas-merge/bio/seaborn/clustermap"
+        f"{git}/bio/seaborn/clustermap"
 
 
 """
@@ -193,7 +193,32 @@ rule pval_histogram:
     log:
         "logs/pval_histogram/{design}_{name}.log"
     wrapper:
-        f"{git}/pandas-merge/bio/seaborn/pval-histogram"
+        f"{git}/bio/seaborn/pval-histogram"
+
+
+rule volcanoplot:
+    input:
+        deseq2_tsv = "deseq2/{design}/TSV/Deseq2_{name}.tsv"
+    output:
+        png = "figures/Volcano_plot/{design}/Volcano_{name}.png"
+    message:
+        "Building volcano plot ({wildcards.design}, {wildcards.name})"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    params:
+        alpha_threshold = config["thresholds"].get("alpha_threshold", 0.05),
+        fc_threshold = config["thresholds"].get("fc_threshold", 1)
+    log:
+        "logs/volcanoplot/volcano_{design}_{name}.log"
+    wrapper:
+        f"{git}/bio/enhancedVolcano/volcano-deseq2"
 
 
 """
@@ -201,7 +226,7 @@ This rule archies all images into a single tarball
 """
 rule figures_archive:
     input:
-        pval_histograms = lambda wildcards: deseq2_png(wildcards)
+        figures = lambda wildcards: deseq2_png(wildcards)
     output:
         "figures.{design}.tar.bz2"
     message:
@@ -220,4 +245,4 @@ rule figures_archive:
     log:
         "logs/figures_archive/{design}.log"
     shell:
-        "tar -cvjf {output} {input.pval_histograms} > {log} 2>&1"
+        "tar -cvjf {output} {input.figures} > {log} 2>&1"

@@ -27,7 +27,7 @@ rule tximport:
     log:
         "logs/tximport.log"
     wrapper:
-        f"{wrapper_version}/bio/tximport"
+        f"{git}/bio/tximport"
 
 
 """
@@ -55,7 +55,7 @@ rule tx2gene:
     log:
         "logs/tx2gene/tx_to_gene.log"
     wrapper:
-        f"{git}/tx_to_tgene/bio/tx_to_gene/gtf"
+        f"{git}/bio/tx_to_gene/gtf"
 
 
 """
@@ -82,4 +82,4 @@ rule tx2gene_subset:
     log:
         "logs/tx2gene/subset.log"
     shell:
-        "cut -f 2,3 {input} | sort | uniq > {output} 2> {log}"
+        "awk '{{print $2\"\\t\"$1}}' {input} | sort | uniq > {output} 2> {log}"

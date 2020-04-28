@@ -24,7 +24,9 @@ except ImportError:
 # Snakemake-Wrappers version
 wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.50.3"
 # github prefix
-git = "https://raw.githubusercontent.com/tdayris-perso/snakemake-wrappers"
+git = "https://raw.githubusercontent.com/tdayris/snakemake-wrappers/Unofficial"
+
+local = "file:/home/tdayris/Documents/Developments/snakemake-wrappers/"
 
 # Loading configuration
 if config == dict():
@@ -57,6 +59,18 @@ def deseq2_png(wildcards: Any) -> Generator[str, None, None]:
     )
 
 
+def deseq2_reports(wildcards: Any) -> Generator[str, None, None]:
+    """
+    This function solves the checkpoint IO streams for Snakemake
+    """
+    names = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "Reports/{design}/Report_{name}.html",
+        design=wildcards.design,
+        name=[n for n in glob_wildcards(os.path.join(names, "Deseq2_{name}.tsv")).name if n != "Intercept"]
+    )
+
+
 def get_rdsd_targets(get_tximport: bool = False,
                      get_deseq2: bool = False,
                      get_aggregation: bool = False,
@@ -80,6 +94,11 @@ def get_rdsd_targets(get_tximport: bool = False,
 
         targets["vst"] = expand(
             "deseq2/{design}/rlog.RDS",
+            design=config["models"].keys()
+        )
+
+        targets["deseq2_reports"] = expand(
+            "reports.{design}.tar.bz2",
             design=config["models"].keys()
         )
 
@@ -118,4 +137,6 @@ def get_rdsd_targets(get_tximport: bool = False,
             "pcaExplorer/{design}/limmago.RDS",
             design=config["models"].keys()
         )
+
+
     return targets

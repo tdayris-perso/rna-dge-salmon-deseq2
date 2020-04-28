@@ -3,11 +3,11 @@ This rule prepares DESeq2 output for further use with IGR GSEA shiny portal
 """
 rule deseq2_to_gseaapp:
     input:
-        tsv = "deseq2/{design}/TSV/Deseq2_{name}.tsv"
+        tsv = "deseq2/{design}/TSV/Deseq2_{factor}.tsv"
     output:
-        complete = "GSEA/{design}/{name}.complete.tsv"
+        complete = "GSEA/{design}/{factor}.complete.tsv"
     message:
-        "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.name})"
+        "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.factor})"
     threads:
         1
     resources:
@@ -17,9 +17,7 @@ rule deseq2_to_gseaapp:
         time_min = (
             lambda wildcards, attempt: min(attempt * 40, 200)
         )
-    params:
-        complete_table_only = True
     log:
-        "logs/deseq2_to_gseaapp/{design}/{name}.log"
+        "logs/deseq2_to_gseaapp/{design}/{factor}.log"
     wrapper:
-        f"{git}/pandas-merge/bio/padnas/deseq2_to_gseaapp"
+        f"{git}/bio/pandas/deseq2_to_gseaapp"
