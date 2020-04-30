@@ -188,11 +188,11 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule DESeq2_report:
     input:
-        gseapp_tsv = "GSEA/{design}/{name}.complete.tsv",
+        gseapp_tsv = "GSEA/{design}/{name}.enhanced.tsv",
         volcano = "figures/Volcano_plot/{design}/Volcano_{name}.png",
         pval_hist = "figures/pval_histogram/{design}/{name}_pval_histogram.png",
         maplot = "figures/{design}/plotMA/plotMA_{name}.png",
-        coldata = config["design"],
+        coldata = "deseq2/filtered_design.tsv",
         pca = "figures/{design}/pca.png",
         pca_scree = "figures/{design}/pca_scree.png",
         pca_corrs = "figures/{design}/pcacorrs.png",

@@ -246,3 +246,30 @@ rule figures_archive:
         "logs/figures_archive/{design}.log"
     shell:
         "tar -cvjf {output} {input.figures} > {log} 2>&1"
+
+
+"""
+This rule cleans the coldata file to build nicer reports
+"""
+rule clean_coldata:
+    input:
+        design = config["design"]
+    output:
+        tsv = "deseq2/filtered_design.tsv"
+    message:
+        "Filtering design to produce human readable reports"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    params:
+        filter_column = ["Salmon_quant", "Upstream_file", "Downstream_file"]
+    log:
+        "logs/design_filter/design_filter.log"
+    wrapper:
+        f"{git}/bio/pandas/filter_design"
