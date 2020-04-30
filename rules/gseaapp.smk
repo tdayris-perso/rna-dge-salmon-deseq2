@@ -75,4 +75,4 @@ rule gseapp_clarify:
     log:
         "logs/gseaapp_filter/{design}/{factor}.log"
     wrapper:
-        f"{local}/bio/pandas/add_genes"
+        f"{git}/bio/pandas/add_genes"
