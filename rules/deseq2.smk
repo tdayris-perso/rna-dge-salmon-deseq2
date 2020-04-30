@@ -5,7 +5,7 @@ More information: https://github.com/tdayris-perso/snakemake-wrappers/tree/deseq
 rule DESeqDatasetFromTximport:
     input:
         tximport = "tximport/txi.RDS",
-        coldata = config["design"]
+        coldata = "deseq2/filtered_design.tsv"
     output:
         dds = temp("deseq2/{design}/dds.RDS")
     message:

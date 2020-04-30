@@ -45,9 +45,9 @@ rule gseapp_clarify:
             lambda wildcards, attempt: min(attempt * 40, 200)
         )
     params:
-        header = False,
-        genes = True
+        header = None,
+        genes = False
     log:
-        "logs/deseq2_to_gseaapp/{design}/{factor}.log"
+        "logs/gseaapp_filter/{design}/{factor}.log"
     wrapper:
         f"{git}/bio/pandas/add_genes"
