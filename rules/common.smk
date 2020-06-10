@@ -85,6 +85,15 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
         ]
     )
 
+
+def volcano_png(wildcards: Any) -> Generator[str, None, None]:
+    names = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "figures/{design}/Volcano_{name}.png",
+        design=wildcards.design,
+        name=names
+    )
+
 def clusterProfiler_figures(wildcards: Any) -> Generator[str, None, None]:
     """
     This function solves the checkpoint IO streams for clusterProfiler
@@ -131,6 +140,11 @@ def get_rdsd_targets(get_tximport: bool = False,
 
         targets["gseapp"] = expand(
             "GSEA/gsea.{design}.tar.bz2",
+            design=config["models"].keys()
+        )
+
+        targets["volcano"] = expand(
+            "figures/{design}/Volcano.tar.bz2",
             design=config["models"].keys()
         )
 
@@ -188,7 +202,7 @@ def get_rdsd_targets(get_tximport: bool = False,
         )
 
         targets["pcas"] = expand(
-            "figures/{design}/pca/{intgroup}_{axes}_{elipse}.png",
+            "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
             design=config["models"].keys(),
             intgroup=get_intgroups(design, columns_to_drop=reserved),
             axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(5)],

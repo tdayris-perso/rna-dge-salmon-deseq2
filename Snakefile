@@ -17,6 +17,7 @@ include: "rules/deseq2.smk"
 include: "rules/pandas.smk"
 include: "rules/pcaExplorer.smk"
 include: "rules/multiqc.smk"
+include: "rules/enhancedVolcano.smk"
 # include: "rules/clusterProfiler.smk"
 
 
