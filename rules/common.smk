@@ -91,8 +91,9 @@ def volcano_png(wildcards: Any) -> Generator[str, None, None]:
     return expand(
         "figures/{design}/Volcano_{name}.png",
         design=wildcards.design,
-        name=names
+        name=[n for n in glob_wildcards(os.path.join(names, "Deseq2_{name}.tsv")).name if n != "Intercept"]
     )
+
 
 def clusterProfiler_figures(wildcards: Any) -> Generator[str, None, None]:
     """
