@@ -4,8 +4,7 @@ See: https://github.com/tdayris/snakemake-wrappers/tree/Unofficial/bio/enhancedV
 """
 rule volcanoplot:
     input:
-        deseq2_tsv = "deseq2/{design}/TSV/Deseq2_{name}.tsv",
-        wald = "deseq2/Condition_model/Wald.RDS"
+        deseq2_tsv = "deseq2/{design}/TSV/Deseq2_{name}.tsv"
     output:
         png = "figures/{design}/Volcano_{name}.png"
     message:
