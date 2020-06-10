@@ -6,4 +6,5 @@ channels:
   - defaults
   - r
 dependencies:
-  - bioconda:pbgzip=2016.08.04 
+  - bioconda:pbgzip=2016.08.04
+  - conda-forge:gawk=5.1.0 

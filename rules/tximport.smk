@@ -1,11 +1,12 @@
 """
 This rule import salmon counts and possible inferential replicates
 with R for further DESeq2 analysis
+See: https://github.com/tdayris/snakemake-wrappers/tree/Unofficial/bio/tximport
 """
 rule tximport:
     input:
-        tx_to_gene = "tximport/tx2gene.tsv",
-        quant = expand("{dir}/quant.sf", dir = design.Salmon_quant)
+        tx_to_gene = "tximport/tx_tab_gene.tsv",
+        quant = expand("{dir}/quant.sf", dir = design.Salmon)
     output:
         txi = temp("tximport/txi.RDS")
     message:
@@ -33,12 +34,13 @@ rule tximport:
 """
 This rule builds a super-set ot the tx2gene table required by tximport, from
 a GTF file.
+See: https://github.com/tdayris/snakemake-wrappers/tree/Unofficial/bio/tx_to_gene/gtf
 """
 rule tx2gene:
     input:
         gtf = get_gtf_path(config)
     output:
-        tsv = temp("tximport/tr2gene.tsv")
+        tsv = "tximport/transcript_to_gene_id_to_gene_name.tsv"
     message:
         "Building transcript to gene table for Tximport"
     threads:
@@ -52,8 +54,12 @@ rule tx2gene:
         )
     group:
         "tx2gene"
+    params:
+        gencode = True,
+        header = True,
+        positions = True
     log:
-        "logs/tx2gene/tx_to_gene.log"
+        "logs/tx2gene/transcript_to_gene_id_to_gene_name.log"
     wrapper:
         f"{git}/bio/tx_to_gene/gtf"
 
@@ -63,9 +69,9 @@ This rule subsets the previous output in order to fit tximport's requirements
 """
 rule tx2gene_subset:
     input:
-        "tximport/tr2gene.tsv"
+        "tximport/transcript_to_gene_id_to_gene_name.tsv"
     output:
-        temp("tximport/tx2gene.tsv")
+        temp("tximport/tx_tab_gene.tsv")
     message:
         "Subsetting the tr2gene table"
     threads:
@@ -79,7 +85,14 @@ rule tx2gene_subset:
         )
     group:
         "tx2gene"
+    conda:
+        "../envs/bash.yaml"
     log:
-        "logs/tx2gene/subset.log"
+        "logs/tx2gene/tx_tab_gene.log"
     shell:
-        "awk '{{print $2\"\\t\"$1}}' {input} | sort | uniq > {output} 2> {log}"
+        "awk 'BEGIN{{FS=\"\\t\"}} NR != 1 {{print $2 FS $1}}' "
+        "{input} "
+        "| sort "
+        "| uniq "
+        "> {output} "
+        "2> {log}"

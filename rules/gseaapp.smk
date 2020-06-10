@@ -3,9 +3,14 @@ This rule prepares DESeq2 output for further use with IGR GSEA shiny portal
 """
 rule deseq2_to_gseaapp:
     input:
-        tsv = "deseq2/{design}/TSV/Deseq2_{factor}.tsv"
+        tsv = "deseq2/{design}/TSV/Deseq2_{factor}.tsv",
+        tx2gene = "tximport/transcript_to_gene_id_to_gene_name.tsv"
     output:
-        complete = "GSEA/{design}/{factor}.complete.tsv"
+        complete = "GSEA/{design}/{factor}.complete.tsv",
+        fc_sig = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_fold_change.tsv",
+        fc_fc = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
+        padj_sig = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_padj.tsv",
+        padj_fc = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv"
     message:
         "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.factor})"
     threads:
@@ -28,7 +33,7 @@ Subsets the tr2gene table in order to enhance the gseapp table
 """
 rule subset_tr2gene:
     input:
-        "tximport/tr2gene.tsv"
+        "tximport/transcript_to_gene_id_to_gene_name.tsv"
     output:
         "tximport/gene2gene.tsv"
     message:
@@ -45,7 +50,12 @@ rule subset_tr2gene:
     log:
         "logs/gseaapp_filter/gene2gene.log"
     shell:
-        "awk '{{print $1\"\\t\"$3}}' {input} > {output} 2> {log}"
+        "awk 'BEGIN{{FS=\"\\t\"}} NR != 1 {{print $1\"\\t\"$3}}' "
+        " {input} "
+        " | sort "
+        " | uniq "
+        " > {output} "
+        " 2> {log}"
 
 
 """
@@ -54,12 +64,13 @@ identifiers
 """
 rule gseapp_clarify:
     input:
-        tsv = "GSEA/{design}/{factor}.complete.tsv",
+        tsv = "GSEA/{design}/{factor}.{content}.tsv",
         tx2gene = "tximport/gene2gene.tsv"
     output:
-        tsv = "GSEA/{design}/{factor}.enhanced.tsv"
+        tsv = "GSEA/{design}/{factor}.{content}.enhanced.tsv"
     message:
         "Making GSEAapp human readable ({wildcards.design}/{wildcards.factor})"
+        " considering {wildcards.content}"
     threads:
         1
     resources:
@@ -71,8 +82,33 @@ rule gseapp_clarify:
         )
     params:
         header = None,
-        genes = True
+        genes = True,
+        index = True
     log:
-        "logs/gseaapp_filter/{design}/{factor}.log"
+        "logs/gseaapp_filter/{design}/{factor}/{content}.log"
     wrapper:
         f"{git}/bio/pandas/add_genes"
+
+
+rule zip_gsea:
+    input:
+        htmls = lambda wildcards: gsea_tsv(wildcards)
+    output:
+        "GSEA/gsea.{design}.tar.bz2"
+    message:
+        "Tar bzipping all GSEAapp tables for {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    conda:
+        "../envs/bash.yaml"
+    log:
+        "logs/figures_archive/gsea_{design}.log"
+    shell:
+        "tar -cvjf {output} {input.htmls} > {log} 2>&1"

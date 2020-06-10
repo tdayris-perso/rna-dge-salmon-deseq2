@@ -25,6 +25,6 @@ rule copy_extra:
     threads: 1
     params:
         extra = config["params"].get("copy_extra", ""),
-        cold_storage = config.get("cold_storage", "NONE")
+        cold_storage = config.get("cold_storage", ["NONE"])
     wrapper:
         f"{git}/bio/cp"

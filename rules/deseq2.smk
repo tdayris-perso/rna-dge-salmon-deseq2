@@ -189,8 +189,7 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 rule DESeq2_report:
     input:
         gseapp_tsv = "GSEA/{design}/{name}.enhanced.tsv",
-        volcano = "figures/Volcano_plot/{design}/Volcano_{name}.png",
-        pval_hist = "figures/pval_histogram/{design}/{name}_pval_histogram.png",
+        volcano = "figures/{design}/Volcano_{name}.png",
         maplot = "figures/{design}/plotMA/plotMA_{name}.png",
         coldata = "deseq2/filtered_design.tsv",
         pca = "figures/{design}/pca.png",
@@ -251,7 +250,7 @@ rule zip_reports:
     output:
         "reports.{design}.tar.bz2"
     message:
-        "Tar bzipping all images for {wildcards.design}"
+        "Tar bzipping all DESeq2 reports for {wildcards.design}"
     threads:
         1
     resources:
@@ -264,6 +263,6 @@ rule zip_reports:
     conda:
         "../envs/bash.yaml"
     log:
-        "logs/figures_archive/{design}.log"
+        "logs/figures_archive/report_{design}.log"
     shell:
         "tar -cvjf {output} {input.htmls} > {log} 2>&1"

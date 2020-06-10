@@ -12,7 +12,7 @@ You can test this script with:
 pytest -vv prepare_config.py
 
 Usage example:
-python3.8 prepare_config.py /path/to/rna-count-salmon-results/
+python3.8 prepare_config.py --help
 """
 
 
@@ -196,6 +196,27 @@ def parser() -> argparse.ArgumentParser:
         default="logp=TRUE"
     )
 
+    main_parser.add_argument(
+        "--cluster-profiler-gseGO-extra",
+        help="Extra parameters for GSEA on GO (default: %(default)s)",
+        type=str,
+        default="verbose = TRUE"
+    )
+
+    main_parser.add_argument(
+        "--cluster-profiler-gseaplot-extra",
+        help="Extra parameters for gseaplot (default: %(default)s)",
+        type=str,
+        default="pvalue_table = TRUE"
+    )
+
+    main_parser.add_argument(
+        "--cluster-profiler-barplot-extra",
+        help="Extra parameters for gsea barplot (default: %(default)s)",
+        type=str,
+        default="showCategory = 10"
+    )
+
     # Logging options
     log = main_parser.add_mutually_exclusive_group()
     log.add_argument(
@@ -264,7 +285,10 @@ def args_to_dict(args: argparse.ArgumentParser,
             "limmaquickpca2go_extra": args.limmaquickpca2go_extra,
             "pcaexplorer_distro_expr_extra": args.pcaexplorer_distro_expr_extra,
             "pcaexplorer_scree_extra": args.pcaexplorer_scree_extra,
-            "pcaexplorer_pcacorrs_extra": args.pcaexplorer_pcacorrs_extra
+            "pcaexplorer_pcacorrs_extra": args.pcaexplorer_pcacorrs_extra,
+            "gseaplot_extra": args.cluster_profiler_gseaplot_extra,
+            "gseGO_extra": args.cluster_profiler_gseGO_extra,
+            "barplot_extra": args.cluster_profiler_barplot_extra
         },
         "models": {
             name: formula
@@ -377,5 +401,5 @@ if __name__ == '__main__':
     except Exception as e:
         logging.exception("%s", e)
         sys.exit(1)
-    sys.exit(0)
+
     logging.info("Process over")
