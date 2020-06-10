@@ -33,8 +33,8 @@ rule :
     log:
         "logs/multiqc/config_{design}.log"
     wrapper:
-        #f"{git}/bio/BiGR/multiqc_rnaseq_report"
-        "file:../../snakemake-wrappers/bio/BiGR/multiqc_rnaseq_report"
+        f"{git}/bio/BiGR/multiqc_rnaseq_report"
+        #"file:../../snakemake-wrappers/bio/BiGR/multiqc_rnaseq_report"
 
 
 rule multiqc:
