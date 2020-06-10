@@ -22,7 +22,8 @@ rule DESeqDatasetFromTximport:
     params:
         design = (
             lambda wildcards: config["models"][wildcards.design]
-        )
+        ),
+        count_filter = min(len(design.Sample_id.tolist()), 10)
     log:
         "logs/deseq2/DESeqDatasetFromTximport/{design}.log"
     wrapper:
@@ -111,7 +112,7 @@ rule vst:
             lambda wildcards, attempt: attempt * 20
         )
     params:
-        extra = "blind = TRUE, nsub = 10, fitType = 'local'"
+        extra = config["params"].get("DESeq2_vst_extra", "")
     group:
         "deseq2-estimations"
     log:
