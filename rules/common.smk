@@ -202,24 +202,24 @@ def get_rdsd_targets(get_tximport: bool = False,
             design=config["models"].keys()
         )
 
-        targets["pcas"] = expand(
-            "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
-            design=config["models"].keys(),
-            intgroup=get_intgroups(design, columns_to_drop=reserved),
-            axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(5)],
-            elipse=["with_elipse", "without_elipse"]
-        )
+        # targets["pcas"] = expand(
+        #     "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
+        #     design=config["models"].keys(),
+        #     intgroup=get_intgroups(design, columns_to_drop=reserved),
+        #     axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(5)],
+        #     elipse=["with_elipse", "without_elipse"]
+        # )
 
         targets["pair_corr"] = expand(
             "figures/{design}/pairwise_scatterplot_{design}.png",
             design=config["models"].keys()
         )
 
-        targets["seaborn_clustermap"] = expand(
-            "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
-            design=config["models"].keys(),
-            factor=list(set(design.columns) - reserved)
-        )
+        # targets["seaborn_clustermap"] = expand(
+        #     "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
+        #     design=config["models"].keys(),
+        #     factor=list(set(design.columns) - reserved)
+        # )
 
         targets["multiqc_report"] = expand(
             "multiqc/{design}/report.html",
