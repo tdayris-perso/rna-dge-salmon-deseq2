@@ -225,3 +225,34 @@ rule test_pcaexplorer_pair_corr:
         "logs/pcaexplorer/pairwise_scatterplot/{design}.log"
     wrapper:
         f"{git}/bio/pcaExplorer/pair_corr"
+
+
+rule pcaExplorer_archive:
+    input:
+        dds = "deseq2/{design}/dds.RDS",
+        dst = (
+            "deseq2/{design}/rlog.RDS"
+            if config["params"].get("use_rlog", True) is True
+            else "deseq2/{design}/VST.RDS"
+        ),
+        annot = "pcaExplorer/{design}/annotation.RDS",
+        limmago = "pcaExplorer/{design}/limmago.RDS"
+    output:
+        archive = "pcaExplorer/archives/pcaExplorer_{design}.zip"
+    message:
+        "Building pcaExplorer archive"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    conda:
+        "../envs/bash.yaml"
+    log:
+        "logs/pcaExplorer/archive/{design}.log"
+    shell:
+        "zip {output} {input} > {log} 2>&1"

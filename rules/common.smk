@@ -61,9 +61,11 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
     """
     intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
     return expand(
-        "GSEA/{design}/{factor}.{content}.tsv",
+        "GSEA/{design}/{intgroup}.{content}.tsv",
         design=wildcards.design,
-        factor=[n for n in glob_wildcards(os.path.join(intgroups, "Deseq2_{factor}.tsv")).factor if n != "Intercept"],
+        intgroup=[n for n in glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup if n != "Intercept"],
         content=[
             "complete",
             "filtered_on_padj.stat_change_is_fold_change",
@@ -153,7 +155,7 @@ def get_rdsd_targets(get_tximport: bool = False,
         )
 
         targets["volcano"] = expand(
-            "Results/{design}/Figures_and_QC.tar.bz2",
+            "Results/{design}/Results_archive.tar.bz2",
             design=config["models"].keys()
         )
 
