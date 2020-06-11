@@ -49,33 +49,21 @@ reserved = {"Sample_id", "Upstream_file",
 
 wildcard_constraints:
     design = "|".join(config["models"].keys()),
-    intgroup = "|".join(get_intgroups(design, columns_to_drop=reserved)),
+    #intgroup = "|".join(get_intgroups(design, columns_to_drop=reserved)),
     elipse = "|".join(["with_elipse", "without_elipse"])
 
 report: "../report/general.rst"
-
-
-def deseq2_png(wildcards: Any) -> Generator[str, None, None]:
-    """
-    This function solves the checkpoint IO streams for Snakemake
-    """
-    tsvs = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-    return expand(
-        "figures/{design}/{name}_pval_histogram.png",
-        design=wildcards.design,
-        name=glob_wildcards(os.path.join(tsvs, "Deseq2_{name}.tsv")).name
-    )
 
 
 def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
     """
     This function solves the checkpoint IO streams for DESeq2
     """
-    names = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
     return expand(
         "GSEA/{design}/{factor}.{content}.tsv",
         design=wildcards.design,
-        factor=[n for n in glob_wildcards(os.path.join(names, "Deseq2_{factor}.tsv")).factor if n != "Intercept"],
+        factor=[n for n in glob_wildcards(os.path.join(intgroups, "Deseq2_{factor}.tsv")).factor if n != "Intercept"],
         content=[
             "complete",
             "filtered_on_padj.stat_change_is_fold_change",
@@ -87,27 +75,47 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
 
 
 def volcano_png(wildcards: Any) -> Generator[str, None, None]:
-    names = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
     return expand(
-        "figures/{design}/Volcano_{name}.png",
+        "figures/{design}/Volcano_{intgroup}.png",
         design=wildcards.design,
-        name=[n for n in glob_wildcards(os.path.join(names, "Deseq2_{name}.tsv")).name if n != "Intercept"]
+        intgroup=[n for n in glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup if n != "Intercept"]
     )
 
 
-def clusterProfiler_figures(wildcards: Any) -> Generator[str, None, None]:
-    """
-    This function solves the checkpoint IO streams for clusterProfiler
-    """
-    names = checkpoints.gene_list.get(**wildcards).output.gene_lists
-    result = expand(
-        "figures/{design}/clusterProfiler/{tool}/{name}.png",
-        tool=["GSEAGO", "barplot"],
+def maplot_png(wildcards: Any) -> Generator[str, None, None]:
+    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "figures/{design}/plotMA/plotMA_{intgroup}.png",
         design=wildcards.design,
-        name=[n for n in glob_wildcards(os.path.join(names, "{name}.tsv")).name if n != "Intercept"]
+        intgroup=[n for n in glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup if n != "Intercept"]
     )
-    print(result)
-    return result
+
+
+def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
+    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "multiqc/{design}_{intgroup}/report.html",
+        design=wildcards.design,
+        intgroup=[n for n in glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup if n != "Intercept"]
+    )
+
+
+def pca_plots(wildcards: Any) -> Generator[str, None, None]:
+    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    return expand(
+        "figures/{design}/pca/pca_{intgroup}_ax_1_ax_2_without_elipse.png",
+        design=wildcards.design,
+        intgroup=[n for n in glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup if n != "Intercept"]
+    )
 
 
 def get_rdsd_targets(get_tximport: bool = False,
@@ -145,43 +153,10 @@ def get_rdsd_targets(get_tximport: bool = False,
         )
 
         targets["volcano"] = expand(
-            "figures/{design}/Volcano.tar.bz2",
+            "Results/{design}/Figures_and_QC.tar.bz2",
             design=config["models"].keys()
         )
 
-        # targets["deseq2_reports"] = expand(
-        #     "reports.{design}.tar.bz2",
-        #     design=config["models"].keys()
-        # )
-
-    # if get_aggregation is True:
-    #     targets["aggrgation"] = "aggrgated_counts/TPM.tsv"
-
-    # if get_plots is True:
-    #     targets["pval_histograms"] = expand(
-    #         "figures.{design}.tar.bz2",
-    #         design=config["models"].keys()
-    #     )
-
-        # targets["plots"] = [
-        #     "figures/Box_plot_non_null_counts.png",
-        #     "figures/pairwise_scatterplot.png"
-        # ]
-        # targets["pca"] = expand(
-        #     "figures/{design}/pca.png",
-        #     design=config["models"].keys()
-        # )
-        # targets["clustermaps"] = expand(
-        #     "figures/Clustermap/Clustered_heatmap_{factor}.png",
-        #     factor=set(design.columns) - reserved
-        # )
-
-        # targets["clusterProfiler_figures"] = expand(
-        #     "figures.clusterProfiler.{design}.tar.bz2",
-        #     design=config["models"].keys()
-        # )
-
-    # if get_pca_explorer is True:
         targets["pcaexplorer_annot"] = expand(
             "pcaExplorer/{design}/annotation.RDS",
             design=config["models"].keys()
@@ -202,33 +177,11 @@ def get_rdsd_targets(get_tximport: bool = False,
             design=config["models"].keys()
         )
 
-        # targets["pcas"] = expand(
-        #     "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
-        #     design=config["models"].keys(),
-        #     intgroup=get_intgroups(design, columns_to_drop=reserved),
-        #     axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(5)],
-        #     elipse=["with_elipse", "without_elipse"]
-        # )
-
         targets["pair_corr"] = expand(
             "figures/{design}/pairwise_scatterplot_{design}.png",
             design=config["models"].keys()
         )
 
-        # targets["seaborn_clustermap"] = expand(
-        #     "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
-        #     design=config["models"].keys(),
-        #     factor=list(set(design.columns) - reserved)
-        # )
-
-        targets["multiqc_report"] = expand(
-            "multiqc/{design}/report.html",
-            design=config["models"].keys()
-        )
-    #     targets["pcaExplorer_limmago"] = expand(
-    #         "pcaExplorer/{design}/limmago.RDS",
-    #         design=config["models"].keys()
-    #     )
 
 
     return targets

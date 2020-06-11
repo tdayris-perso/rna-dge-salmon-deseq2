@@ -189,18 +189,18 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule DESeq2_report:
     input:
-        gseapp_tsv = "GSEA/{design}/{name}.enhanced.tsv",
-        volcano = "figures/{design}/Volcano_{name}.png",
-        maplot = "figures/{design}/plotMA/plotMA_{name}.png",
+        gseapp_tsv = "GSEA/{design}/{intgroup}.enhanced.tsv",
+        volcano = "figures/{design}/Volcano_{intgroup}.png",
+        maplot = "figures/{design}/plotMA/plotMA_{intgroup}.png",
         coldata = "deseq2/filtered_design.tsv",
         pca = "figures/{design}/pca.png",
         pca_scree = "figures/{design}/pca_scree.png",
         pca_corrs = "figures/{design}/pcacorrs.png",
         distro_expr = "figures/{design}/distro_expr.png"
     output:
-        html = "Reports/{design}/Report_{name}.html"
+        html = "Reports/{design}/Report_{intgroup}.html"
     message:
-        "Building report based on {wildcards.design} and {wildcards.name}"
+        "Building report based on {wildcards.design} and {wildcards.intgroup}"
     threads:
         1
     resources:
@@ -213,22 +213,23 @@ rule DESeq2_report:
     params:
         alpha_threshold = config["thresholds"].get("alpha_threshold", 0.05),
         fc_threshold = config["thresholds"].get("fc_threshold", 1),
-        results_name = (
-            lambda wildcards: f"{wildcards.design} : {wildcards.name}"
+        results_intgroup = (
+            lambda wildcards: f"{wildcards.design} : {wildcards.intgroup}"
         )
     log:
-        "logs/DESeq2_report/Report_{design}_{name}.log"
+        "logs/DESeq2_report/Report_{design}_{intgroup}.log"
     wrapper:
         f"{git}/bio/BiGR/deseq2_report"
 
 
 rule plotMA:
     input:
-        res = "deseq2/{design}/TSV/Deseq2_{name}.tsv"
+        res = "deseq2/{design}/TSV/Deseq2_{intgroup}.tsv"
     output:
-        png = "figures/{design}/plotMA/plotMA_{name}.png"
+        png = "figures/{design}/plotMA/plotMA_{intgroup}.png"
     message:
-        "Building MAplot for {wildcards.design}, considering {wildcards.name}"
+        "Building MAplot for {wildcards.design}, "
+        "considering {wildcards.intgroup}"
     threads:
         1
     resources:
@@ -241,17 +242,20 @@ rule plotMA:
     params:
         alpha_threshold = config["thresholds"].get("alpha_threshold", 0.05)
     log:
-        "logs/plotMA/plotma_{design}_{name}.log"
+        "logs/plotMA/plotma_{design}_{intgroup}.log"
     wrapper:
         f"{git}/bio/deseq2/plotMA"
 
-rule zip_reports:
+
+rule zip_deseq2_results:
     input:
-        htmls = lambda wildcards: deseq2_reports(wildcards)
+        volcano = lambda wildcards: volcano_png(wildcards),
+        maplot = lambda wildcards: maplot_png(wildcards),
+        multiqc = lambda wildcards: multiqc_reports(wildcards)
     output:
-        "reports.{design}.tar.bz2"
+        "Results/{design}/Figures_and_QC.tar.bz2"
     message:
-        "Tar bzipping all DESeq2 reports for {wildcards.design}"
+        "Tar bzipping all Volcano plots for {wildcards.design}"
     threads:
         1
     resources:
@@ -264,6 +268,6 @@ rule zip_reports:
     conda:
         "../envs/bash.yaml"
     log:
-        "logs/figures_archive/report_{design}.log"
+        "logs/figures_archive/volcano_{design}.log"
     shell:
-        "tar -cvjf {output} {input.htmls} > {log} 2>&1"
+        "tar -cvjf {output} {input} > {log} 2>&1"
