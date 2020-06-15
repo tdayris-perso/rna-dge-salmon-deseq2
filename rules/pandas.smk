@@ -42,7 +42,11 @@ rule seaborn_clustermap:
             else "deseq2/{design}/VST.tsv"
         ))
     output:
-        png = "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png"
+        png = report(
+            "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
+            caption="../report/clustered_heatmap.rst",
+            category="Quality Control"
+        )
     message:
         "Building sample clustered heatmap on {wildcards.design}"
     threads:

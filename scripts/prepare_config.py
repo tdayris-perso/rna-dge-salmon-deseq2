@@ -136,7 +136,7 @@ def parser() -> argparse.ArgumentParser:
         help="Optional parameters for tximport::tximport"
              " (default: %(default)s)",
         type=str,
-        default="type = 'salmon', ignoreTxVersion = TRUE"
+        default="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE"
     )
 
     main_parser.add_argument(
@@ -144,7 +144,7 @@ def parser() -> argparse.ArgumentParser:
         help="Extra parameters for estimateSizeFactors"
              " (default: %(default)s)",
         type=str,
-        default="quiet=FALSE"
+        default="type='ratio', quiet=FALSE"
     )
 
     main_parser.add_argument(
@@ -152,7 +152,7 @@ def parser() -> argparse.ArgumentParser:
         help="Extra parameters for estimateDispersions"
              " (default: %(default)s)",
         type=str,
-        default="quiet=FALSE"
+        default="fitType='local', quiet=FALSE"
     )
 
     main_parser.add_argument(
@@ -160,7 +160,15 @@ def parser() -> argparse.ArgumentParser:
         help="Extra parameters for rlog function"
              " (default: %(default)s)",
         type=str,
-        default="blind=FALSE"
+        default="blind=FALSE, fitType=NULL"
+    )
+
+    main_parser.add_argument(
+        "--deseq2-vst-extra",
+        help="Extra parameters for rlog function"
+             " (default: %(default)s)",
+        type=str,
+        default="blind=FALSE, fitType=NULL"
     )
 
     main_parser.add_argument(
@@ -169,6 +177,50 @@ def parser() -> argparse.ArgumentParser:
              " (default: %(default)s)",
         type=str,
         default="quiet=FALSE"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-limmaquickpca2go-extra",
+        help="Extra parameters for limma pca to go in pcaExplorer",
+        type=str,
+        default="organism = 'Hs'"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-distro-expr-extra",
+        help="Extra parameters for pcaExplorer's expression distribution plot",
+        type=str,
+        default="plot_type='density'"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-scree-extra",
+        help="Extra parameters for PCA scree in pcaExplorer",
+        type=str,
+        default="type='pev', pc_nr=10"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-pcacorrs-extra",
+        help="Extra parameters for PCA axes correlations "
+             "with experimental design",
+        type=str,
+        default="pcs=1:4"
+    )
+
+    main_parser.add_argument(
+        "--pcaexplorer-pair-corr-extra",
+        help="Extra parameters for PCA sample correlations",
+        type=str,
+        default="use_subset=TRUE, log=FALSE"
+    )
+
+    parser.add_argument(
+        "--use-vst",
+        help="Use Variance Stabilized Transformation to normalize data, "
+             "instead of regularized log",
+        default=False,
+        action="store_true"
     )
 
     # Logging options
@@ -219,7 +271,14 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "DESeq2_estimateSizeFactors_extra": args.deseq2_estimateSizeFactors_extra,
             "DESeq2_estimateDispersions_extra": args.deseq2_estimateDispersions_extra,
             "DESeq2_rlog_extra": args.deseq2_rlog_extra,
-            "DESeq2_nbinomWaldTest_extra": args.deseq2_nbinomWaldTest_extra
+            "DESeq2_vst_extra": args.deseq2_vst_extra,
+            "DESeq2_nbinomWaldTest_extra": args.deseq2_nbinomWaldTest_extra,
+            "use_rlog": (not args.use_vst),
+            "limmaquickpca2go_extra": args.pcaexplorer_limmaquickpca2go_extra,
+            "pcaexplorer_distro_expr": args.pcaexplorer_distro_expr_extra,
+            "pcaexplorer_scree": args.pcaexplorer_scree_extra,
+            "pcaexplorer_pair_corr": args.pcaexplorer_pair_corr_extra,
+            "pcaexplorer_pcacorrs": args.pcaexplorer_pcacorrs_extra,
         },
         "models": dict(zip(args.model_name, args.formulas))
     }

@@ -77,7 +77,11 @@ rule distro_expr:
             else "deseq2/{design}/VST.RDS"
         )
     output:
-        png = "figures/{design}/distro_expr.png"
+        png = report(
+            "figures/{design}/distro_expr.png",
+            caption="../report/distro_expr.rst",
+            category="Quality Report"
+        )
     message:
         "Building expression distribution plot for {wildcards.design}"
     threads:
@@ -111,7 +115,11 @@ rule pca_scree:
             else "deseq2/{design}/VST.RDS"
         )
     output:
-        png = "figures/{design}/pca_scree.png"
+        png = report(
+            "figures/{design}/pca_scree.png",
+            caption="../report/pca_scree.rst",
+            category="Quality Report"
+        )
     message:
         "Building PCA scree for {wildcards.design}"
     threads:
@@ -145,7 +153,11 @@ rule pcaexplorer_pcacorrs:
         ),
         dds = "deseq2/{design}/dds.RDS"
     output:
-        png = "figures/{design}/pcacorrs.png"
+        png = report(
+            "figures/{design}/pcacorrs.png",
+            caption="../report/pca_corr.rst",
+            category="Quality Control"
+        )
     message:
         "Building PCA correlations for {wildcards.design}"
     threads:
@@ -179,7 +191,11 @@ rule pcaexplorer_pca:
             else "deseq2/{design}/VST.RDS"
         )
     output:
-        png = "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png"
+        png = report(
+            "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png",
+            caption="../reports/pca.rst",
+            category="Quality Control"
+        )
     message:
         "Plotting PCA for {wildcards.design} ({wildcards.intgroup}:"
         "{wildcards.a}/{wildcards.b}:{wildcards.elipse})"
@@ -205,11 +221,15 @@ rule pcaexplorer_pca:
 """
 This rule produces a pairwise scatterplot between samples
 """
-rule test_pcaexplorer_pair_corr:
+rule pcaexplorer_pair_corr:
     input:
         dst = "deseq2/{design}/Wald.RDS"
     output:
-        png = "figures/{design}/pairwise_scatterplot_{design}.png"
+        png = report(
+            "figures/{design}/pairwise_scatterplot_{design}.png",
+            caption="../report/pcaexplorer_pair_corr.rst",
+            category="Quality Control"
+        )
     message:
         "Plotting pairwise scatterplot on {wildcards.design}"
     threads:
@@ -221,6 +241,8 @@ rule test_pcaexplorer_pair_corr:
         time_min = (
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
+    params:
+        extra = config["params"].get("pcaexplorer_pair_corr", "")
     log:
         "logs/pcaexplorer/pairwise_scatterplot/{design}.log"
     wrapper:

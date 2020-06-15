@@ -46,7 +46,11 @@ rule multiqc:
             "multiqc/{design}_{intgroup}/volcanoplot_mqc.png"
         ]
     output:
-        "multiqc/{design}_{intgroup}/report.html"
+        report(
+            "multiqc/{design}_{intgroup}/report.html",
+            caption="../report/multiqc.rst",
+            category="Reports"
+        )
     message:
         "Building quality report for {wildcards.design}"
     threads:

@@ -6,11 +6,23 @@ rule deseq2_to_gseaapp:
         tsv = "deseq2/{design}/TSV/Deseq2_{factor}.tsv",
         tx2gene = "tximport/transcript_to_gene_id_to_gene_name.tsv"
     output:
-        complete = "GSEA/{design}/{factor}.complete.tsv",
+        complete = report(
+            "GSEA/{design}/{factor}.complete.tsv",
+            caption="../report/gseapp_complete.rst",
+            category="Results"
+        ),
         fc_sig = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_fold_change.tsv",
-        fc_fc = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
+        fc_fc = report(
+            "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
+            caption="../report/gseapp_fc_fc.rst",
+            category="Results"
+        ),
         padj_sig = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_padj.tsv",
-        padj_fc = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv"
+        padj_fc = report(
+            "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv",
+            category="Results",
+            caption="../report/gseapp_padj_fc.rst"
+        )
     message:
         "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.factor})"
     threads:

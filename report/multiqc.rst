@@ -1,0 +1,1 @@
+Within the analysis called `{snakemake.wildcards.design}`, this report sums up the results for `{snakemake.wildcards.intgroup}`. It contains multiple figures and details embedding quality controls, tables, and dynamic graphs to help you understand the differential gene expression analysis.
