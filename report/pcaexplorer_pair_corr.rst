@@ -9,3 +9,5 @@ The correlation coefficient used vary from 0 to 1:
 - > 0.75 = Very important variations
 
 We expect samples from the same condition to be similar to each others (i.e. high correlation coefficient), while being different from other samples (relatively lower correlation coefficient).
+
+This is a png image, open it with your favorite image viewer.

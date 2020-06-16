@@ -17,3 +17,5 @@ It contains all the DESeq2 results with the following columns:
 +----------------+------------------------------------------------------------------------+
 
 Do not use this file in GSEAapp on ShinyGR. It won't help.
+
+This is a TSV file, you can open it with you favorite tabular editor (excel, LibreOffice, ...). First open your tabular editor, the click-and-drag your file into it.

@@ -98,8 +98,12 @@ rule vst:
     input:
         dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:
-        rds = "deseq2/{design}/VST.RDS",
-        tsv = temp("deseq2/{design}/VST.tsv")
+        rds = temp("deseq2/{design}/VST.RDS"),
+        tsv = report(
+            "deseq2/{design}/VST.tsv",
+            caption="../report/vst.rst",
+            category="Results"
+        )
     message:
         "Building variance stabilized transformation over {wildcards.design}"
     threads:
@@ -129,8 +133,12 @@ rule rlog:
     input:
         dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:
-        rds = "deseq2/{design}/rlog.RDS",
-        tsv = temp("deseq2/{design}/rlog.tsv")
+        rds = temp("deseq2/{design}/rlog.RDS"),
+        tsv = report(
+            "deseq2/{design}/rlog.tsv",
+            caption="../report/rlog.rst",
+            category="Results"
+        )
     message:
         "Building rlog transformation over {wildcards.design}"
     threads:
@@ -226,7 +234,11 @@ rule plotMA:
     input:
         res = "deseq2/{design}/TSV/Deseq2_{intgroup}.tsv"
     output:
-        png = "figures/{design}/plotMA/plotMA_{intgroup}.png"
+        png = report(
+            "figures/{design}/plotMA/plotMA_{intgroup}.png",
+            caption="../report/maplot.rst",
+            category="Quality Control"
+        )
     message:
         "Building MAplot for {wildcards.design}, "
         "considering {wildcards.intgroup}"

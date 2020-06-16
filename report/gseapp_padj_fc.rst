@@ -21,3 +21,5 @@ The file contains the following columns:
 +----------------+---------------------------------------+
 | cluster        | Weather the gene is up/down regulated |
 +----------------+---------------------------------------+
+
+This is a TSV file, you can open it with you favorite tabular editor (excel, LibreOffice, ...). First open your tabular editor, the click-and-drag your file into it.

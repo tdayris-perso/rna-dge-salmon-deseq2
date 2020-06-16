@@ -134,20 +134,21 @@ def get_rdsd_targets(get_tximport: bool = False,
         targets["tximport"] = "tximport/txi.RDS"
 
     if get_deseq2 is True:
-        targets["deseq2_dds"] = expand(
-            "deseq2/{design}/Wald.RDS",
-            design=config["models"].keys()
-        )
+        # targets["deseq2_dds"] = expand(
+        #     "deseq2/{design}/Wald.RDS",
+        #     design=config["models"].keys()
+        # )
 
-        targets["rlog"] = expand(
-            "deseq2/{design}/rlog.RDS",
-            design=config["models"].keys()
-        )
-
-        targets["vsd"] = expand(
-            "deseq2/{design}/VST.RDS",
-            design=config["models"].keys()
-        )
+        if config["params"].get("use_rlog", False) == True:
+            targets["rlog"] = expand(
+                "deseq2/{design}/rlog.tsv",
+                design=config["models"].keys()
+            )
+        else:
+            targets["vsd"] = expand(
+                "deseq2/{design}/VST.tsv",
+                design=config["models"].keys()
+            )
 
         targets["gseapp"] = expand(
             "GSEA/gsea.{design}.tar.bz2",

@@ -6,7 +6,11 @@ rule volcanoplot:
     input:
         deseq2_tsv = "deseq2/{design}/TSV/Deseq2_{intgroup}.tsv"
     output:
-        png = "figures/{design}/Volcano_{intgroup}.png"
+        png = report(
+            "figures/{design}/Volcano_{intgroup}.png",
+            caption="../report/volcanoplot.rst",
+            category="Results"
+        )
     message:
         "Building volcano plot ({wildcards.design}, {wildcards.intgroup})"
     threads:

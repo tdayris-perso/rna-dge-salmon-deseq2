@@ -8,3 +8,5 @@ A PCA measures the variance between samples and plots them:
 - Two point close to each others are sample that are similar to each others.
 
 We expect sample from same conditions to be grouped together. In the best cases, a straight line could be drawn between studied conditions.
+
+This is a png image, open it with your favorite image viewer.

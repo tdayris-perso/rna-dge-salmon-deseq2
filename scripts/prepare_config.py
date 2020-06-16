@@ -215,7 +215,7 @@ def parser() -> argparse.ArgumentParser:
         default="use_subset=TRUE, log=FALSE"
     )
 
-    parser.add_argument(
+    main_parser.add_argument(
         "--use-vst",
         help="Use Variance Stabilized Transformation to normalize data, "
              "instead of regularized log",
