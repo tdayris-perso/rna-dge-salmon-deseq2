@@ -58,7 +58,7 @@ def parser() -> argparse.ArgumentParser:
     main_parser.add_argument(
         "-o", "--output",
         help="Path to output file",
-        default="desgin.tsv",
+        default="design.tsv",
         type=str
     )
 
