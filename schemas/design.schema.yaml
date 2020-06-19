@@ -6,13 +6,10 @@ proprerties:
   Sample_id:
     type: string
     description: The sample unique identifier
-  Upstream_file:
+  salmon:
     type: string
-    description: Path to the corresponding upstream reads file
-  Downstream_file:
-    type: string
-    description: Path to the corresponding downstream reads file
+    description: Path to salmon quantification directory
 
 required:
   - Sample_id
-  - Upstream_file
+  - Salmon
