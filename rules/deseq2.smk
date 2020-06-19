@@ -264,8 +264,7 @@ rule zip_deseq2_results:
         volcano = lambda wildcards: volcano_png(wildcards),
         maplot = lambda wildcards: maplot_png(wildcards),
         multiqc = lambda wildcards: multiqc_reports(wildcards),
-        gsea = lambda wildcards: gsea_tsv(wildcards),
-        pcaExplorer = "pcaExplorer/archives/pcaExplorer_{design}.zip"
+        gsea = lambda wildcards: gsea_tsv(wildcards)
     output:
         "Results/{design}/Results_archive.tar.bz2"
     message:

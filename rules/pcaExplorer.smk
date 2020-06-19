@@ -249,7 +249,7 @@ rule pcaexplorer_pair_corr:
         f"{git}/bio/pcaExplorer/pair_corr"
 
 
-rule pcaExplorer_archive:
+rule pcaExplorer_write_script:
     input:
         dds = "deseq2/{design}/dds.RDS",
         dst = (
@@ -257,12 +257,13 @@ rule pcaExplorer_archive:
             if config["params"].get("use_rlog", True) is True
             else "deseq2/{design}/VST.RDS"
         ),
-        annot = "pcaExplorer/{design}/annotation.RDS",
-        limmago = "pcaExplorer/{design}/limmago.RDS"
+        annotation = "pcaExplorer/{design}/annotation.RDS",
+        pca2go = "pcaExplorer/{design}/limmago.RDS",
+        coldata = "deseq2/filtered_design.tsv"
     output:
-        archive = "pcaExplorer/archives/pcaExplorer_{design}.zip"
+        script = "pcaExplorer/{design}/pcaExplorer_launcher_{design}.R"
     message:
-        "Building pcaExplorer archive"
+        "Building pcaExplorer launch script for {wildcards.design}"
     threads:
         1
     resources:
@@ -272,9 +273,7 @@ rule pcaExplorer_archive:
         time_min = (
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
-    conda:
-        "../envs/bash.yaml"
     log:
-        "logs/pcaExplorer/archive/{design}.log"
-    shell:
-        "zip {output} {input} > {log} 2>&1"
+        "logs/pcaExplorer/write_script/{design}.log"
+    wrapper:
+        f"{git}/bio/pcaExplorer/writeLaunchScript"

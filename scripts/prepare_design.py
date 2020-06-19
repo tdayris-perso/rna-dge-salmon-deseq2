@@ -51,7 +51,7 @@ def parser() -> argparse.ArgumentParser:
         "-i", "--import-design",
         help="Path to a TSV-formatted text file containing "
              "both samples and factors",
-        default="",
+        default=None,
         type=str
     )
 
@@ -157,7 +157,7 @@ def main(args: argparse.ArgumentParser) -> None:
     """
     design = find_quantification(args.salmon_directory)
 
-    if Path(args.import_design).exists() is True:
+    if args.import_design is not None and Path(args.import_design).exists() is True:
         old = design_importer(args.import_design)
         design = merge_designs(design.copy(), old)
 

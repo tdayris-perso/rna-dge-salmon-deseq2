@@ -50,7 +50,9 @@ reserved = {"Sample_id", "Upstream_file",
 wildcard_constraints:
     design = "|".join(config["models"].keys()),
     #intgroup = "|".join(get_intgroups(design, columns_to_drop=reserved)),
-    elipse = "|".join(["with_elipse", "without_elipse"])
+    elipse = "|".join(["with_elipse", "without_elipse"]),
+    a = '|'.join(map(str, range(1, 10))),
+    b = '|'.join(map(str, range(1, 10)))
 
 report: "../report/general.rst"
 
@@ -112,11 +114,13 @@ def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
 def pca_plots(wildcards: Any) -> Generator[str, None, None]:
     intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
     return expand(
-        "figures/{design}/pca/pca_{intgroup}_ax_1_ax_2_without_elipse.png",
+        "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
         design=wildcards.design,
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"]
+        ).intgroup if n != "Intercept"],
+        axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))],
+        elipse=["with_elipse", "with_elipse"]
     )
 
 
@@ -134,10 +138,6 @@ def get_rdsd_targets(get_tximport: bool = False,
         targets["tximport"] = "tximport/txi.RDS"
 
     if get_deseq2 is True:
-        # targets["deseq2_dds"] = expand(
-        #     "deseq2/{design}/Wald.RDS",
-        #     design=config["models"].keys()
-        # )
 
         if config["params"].get("use_rlog", False) == True:
             targets["rlog"] = expand(
@@ -183,6 +183,14 @@ def get_rdsd_targets(get_tximport: bool = False,
         targets["pair_corr"] = expand(
             "figures/{design}/pairwise_scatterplot_{design}.png",
             design=config["models"].keys()
+        )
+
+        targets["pca"] = expand(
+            "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
+            design=config["models"].keys(),
+            intgroup=get_intgroups(design, columns_to_drop=reserved, nest=1),
+            axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))],
+            elipse=["with_elipse", "with_elipse"]
         )
 
 
