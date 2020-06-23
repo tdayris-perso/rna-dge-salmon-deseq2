@@ -61,7 +61,7 @@ rule tx2gene:
     log:
         "logs/tx2gene/transcript_to_gene_id_to_gene_name.log"
     wrapper:
-        f"{git}/bio/tx_to_gene/gtf"
+        f"{git}/bio/gtf/tr2gene"
 
 
 """

@@ -68,13 +68,7 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"],
-        content=[
-            "complete",
-            "filtered_on_padj.stat_change_is_fold_change",
-            "filtered_on_padj_and_fc.stat_change_is_fold_change",
-            "filtered_on_padj_and_fc.stat_change_is_padj",
-            "filtered_on_padj.stat_change_is_padj"
-        ]
+        content=["complete", "fc_fc", "padj_fc"]
     )
 
 
@@ -191,6 +185,11 @@ def get_rdsd_targets(get_tximport: bool = False,
             intgroup=get_intgroups(design, columns_to_drop=reserved, nest=1),
             axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))],
             elipse=["with_elipse", "with_elipse"]
+        )
+
+        targets["pcaExplorer_script"] = expand(
+            "pcaExplorer/{design}/pcaExplorer_launcher_{design}.R",
+            design=config["models"].keys()
         )
 
 

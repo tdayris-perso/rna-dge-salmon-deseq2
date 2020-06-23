@@ -193,7 +193,7 @@ rule pcaexplorer_pca:
     output:
         png = report(
             "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png",
-            caption="../reports/pca.rst",
+            caption="../report/pca.rst",
             category="Quality Control"
         )
     message:

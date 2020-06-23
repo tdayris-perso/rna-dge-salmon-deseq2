@@ -6,23 +6,9 @@ rule deseq2_to_gseaapp:
         tsv = "deseq2/{design}/TSV/Deseq2_{factor}.tsv",
         tx2gene = "tximport/transcript_to_gene_id_to_gene_name.tsv"
     output:
-        complete = report(
-            "GSEA/{design}/{factor}.complete.tsv",
-            caption="../report/gseapp_complete.rst",
-            category="Results"
-        ),
-        fc_sig = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_fold_change.tsv",
-        fc_fc = report(
-            "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
-            caption="../report/gseapp_fc_fc.rst",
-            category="Results"
-        ),
-        padj_sig = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_padj.tsv",
-        padj_fc = report(
-            "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv",
-            category="Results",
-            caption="../report/gseapp_padj_fc.rst"
-        )
+        complete = "GSEA/{design}/{factor}.complete.tsv",
+        fc_fc = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
+        padj_fc = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv"
     message:
         "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.factor})"
     threads:
@@ -74,15 +60,19 @@ rule subset_tr2gene:
 This rule clarifies the results of deseq2 in order to include gene names and
 identifiers
 """
-rule gseapp_clarify:
+rule gseapp_clarify_complete:
     input:
-        tsv = "GSEA/{design}/{factor}.{content}.tsv",
+        tsv = "GSEA/{design}/{factor}.complete.tsv",
         tx2gene = "tximport/gene2gene.tsv"
     output:
-        tsv = "GSEA/{design}/{factor}.{content}.enhanced.tsv"
+        tsv = report(
+            "GSEA/{design}/{factor}.complete.tsv",
+            caption="../report/gseapp_complete.rst",
+            category="DGE Results"
+        )
     message:
         "Making GSEAapp human readable ({wildcards.design}/{wildcards.factor})"
-        " considering {wildcards.content}"
+        " considering complete results"
     threads:
         1
     resources:
@@ -97,7 +87,71 @@ rule gseapp_clarify:
         genes = True,
         index = True
     log:
-        "logs/gseaapp_filter/{design}/{factor}/{content}.log"
+        "logs/gseaapp_filter/{design}/{factor}/complete.log"
+    wrapper:
+        f"{git}/bio/pandas/add_genes"
+
+
+rule gseapp_clarify_fc_fc:
+    input:
+        tsv = "GSEA/{design}/{factor}.filtered_on_padj_and_fc.stat_change_is_fold_change.tsv",
+        tx2gene = "tximport/gene2gene.tsv"
+    output:
+        tsv = report(
+            "GSEA/{design}/{factor}.fc_fc.tsv",
+            caption="../report/gseapp_fc_fc.rst",
+            category="GSEAapp Shiny"
+        )
+    message:
+        "Making GSEAapp human readable ({wildcards.design}/{wildcards.factor})"
+        " considering fold change."
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 40, 200)
+        )
+    params:
+        header = None,
+        genes = True,
+        index = True
+    log:
+        "logs/gseaapp_filter/{design}/{factor}/fc_fc.log"
+    wrapper:
+        f"{git}/bio/pandas/add_genes"
+
+
+rule gseapp_clarify_padj_fc:
+    input:
+        tsv = "GSEA/{design}/{factor}.filtered_on_padj.stat_change_is_padj.tsv",
+        tx2gene = "tximport/gene2gene.tsv"
+    output:
+        tsv = report(
+            "GSEA/{design}/{factor}.padj_fc.tsv",
+            category="GSEAapp Shiny",
+            caption="../report/gseapp_padj_fc.rst"
+        )
+    message:
+        "Making GSEAapp human readable ({wildcards.design}/{wildcards.factor})"
+        " considering both foldchange and padj."
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 2048, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 40, 200)
+        )
+    params:
+        header = None,
+        genes = True,
+        index = True
+    log:
+        "logs/gseaapp_filter/{design}/{factor}/padj_fc.log"
     wrapper:
         f"{git}/bio/pandas/add_genes"
 
