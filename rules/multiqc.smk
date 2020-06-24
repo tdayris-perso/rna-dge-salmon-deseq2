@@ -25,11 +25,12 @@ rule :
         subtitle = "Result tables shall be found apart from this file",
         show_analysis_paths = False,
         show_analysis_time = True,
-        custom_logo = '../images/IGR_Logo.jpeg',
+        custom_logo = 'images/IGR_Logo.jpeg',
         custom_logo_url = 'https://gitlab.com/bioinfo_gustaveroussy/bigr',
         custom_logo_title = 'BiGR, Gustave Roussy Intitute',
         report_header_info = [
-            {"Application Type": "RNA-seq DGE"}
+            {"Data Type": "RNA-seq"},
+            {"Analysis Type": "Differential Gene Expression"}
         ]
     log:
         "logs/multiqc/config_{design}_{intgroup}.log"
@@ -44,12 +45,13 @@ rule multiqc:
         plots = [
             "multiqc/{design}_{intgroup}/pairwise_scatterplot_mqc.png",
             "multiqc/{design}_{intgroup}/volcanoplot_mqc.png"
-        ]
+        ],
+        salmon = design.Salmon.tolist()
     output:
         report(
             "multiqc/{design}_{intgroup}/report.html",
             caption="../report/multiqc.rst",
-            category="Reports"
+            category="DGE Results"
         )
     message:
         "Building quality report for {wildcards.design}"
@@ -63,7 +65,7 @@ rule multiqc:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        lambda w: f"--config multiqc/{w.design}_{w.intgroup}/multiqc_config.yaml"
+        lambda w: f" --config multiqc/{w.design}_{w.intgroup}/multiqc_config.yaml "
     log:
         "logs/multiqc/report/{design}_{intgroup}.log"
     wrapper:
