@@ -7,10 +7,16 @@ Quantification results were aggregated wuth `tximport <https://bioconductor.org/
 
 The following optional parameters were used in:
 
-* Salmon index optional arguments: `{{snakemake.config.params.salmon_index_extra}}`
-* Salmon quantification optional arguments: `{{snakemake.config.params.salmon_quant_extra}}`
-* tximport: `{{ snakemake.config.params.tximport }}`
-* other...
+* tximport was run with the following arguments: `{{ snakemake.config.params.tximport }}`
+* DESeq2 size factor estimation was run with the following arguments: `{{snakemake.config.params.DESeq2_estimateSizeFactors_extra}}`
+* DESeq2 dispersion estimation used the following arguments: `{{snakemake.config.params.DESeq2_estimateDispersions_extra}}`
+* DESeq2 wald test was performed with the following arguments: `{{snakemake.config.params.DESeq2_nbinomWaldTest_extra}}`
+* pcaExplorer expression distribution was plotted with the following arguments: `{{snakemake.config.params.pcaexplorer_distro_expr}}`
+* pcaExplorer pairwise scatterplot was built with the following arguments: `{{snakemake.config.params.pcaexplorer_pair_corr}}`
+* pcaExplorer axes correlations was plotted with the following arguments: `{{snakemake.config.params.pcaexplorer_pcacorrs}}`
+* pcaExplorer axes loadings were plotted with the following arguments: `{{snakemake.config.params.pcaexplorer_scree}}`
+
+In-house scripts were used to chomp, filter and sort results content. Their details are available below.
 
 The whole pipeline was powered by both `Snakemake <https://snakemake.readthedocs.io>`_ , and `SnakemakeWrappers <https://snakemake-wrappers.readthedocs.io/>`_ .
 

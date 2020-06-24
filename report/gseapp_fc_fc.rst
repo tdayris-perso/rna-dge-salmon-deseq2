@@ -1,4 +1,4 @@
-This table contains the results of the differential gene expression analysis called `{snakemake.wildcards.design}`, considering `{snakemake.wildcards.factor}`.
+This table contains the results of the differential gene expression analysis called `{{snakemake.wildcards.design}}`, considering `{{snakemake.wildcards.factor}}`.
 
 It contains part of the DESeq2 results: it has been filtered over significative changes over the gene expression.
 

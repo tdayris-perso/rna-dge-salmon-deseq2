@@ -1,6 +1,6 @@
 PCA (Principal Component Analysis) is a common way to visualize sample diversity across the experiment.
 
-This PCA has been built on axes `{snakemake.wildcards.a}` / `{snakemake.wildcards.b}`, on data normalized for `{snakemake.wildcards.design}` (`{snakemake.wildcards.intgroup}`). You may ask to add or remove ellipses on this graph, as well as sample names.
+This PCA has been built on axes `{{snakemake.wildcards.a}}` / `{{snakemake.wildcards.b}}`, on data normalized for `{{snakemake.wildcards.design}}` (`{{snakemake.wildcards.intgroup}}`). You may ask to add or remove ellipses on this graph, as well as sample names.
 
 A PCA measures the variance between samples and plots them:
 

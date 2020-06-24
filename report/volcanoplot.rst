@@ -1,4 +1,4 @@
-The volcanoplot shows the repartition of genes across two dimensions: their log2(Fold Change) and the -log10(Adjusted PValue). This graph has been done for the comparison `{snakemake.wildcards.design}` (`{snakemake.wildcards.intgroup}`).
+The volcanoplot shows the repartition of genes across two dimensions: their log2(Fold Change) and the -log10(Adjusted PValue). This graph has been done for the comparison `{{snakemake.wildcards.design}}` (`{{snakemake.wildcards.intgroup}}`).
 
 These log transformations are here for plotting convenience, otherise, the graph would be unreadable.
 

@@ -1,4 +1,4 @@
-Sample pairwise correlation is a common way to study sample divergence across the whole experiment. Here, this pairwise correlation has been built on normalization for `{snakemake.wildcards.design}`.
+Sample pairwise correlation is a common way to study sample divergence across the whole experiment. Here, this pairwise correlation has been built on normalization for `{{snakemake.wildcards.design}}`.
 
 The correlation coefficient used vary from 0 to 1:
 
