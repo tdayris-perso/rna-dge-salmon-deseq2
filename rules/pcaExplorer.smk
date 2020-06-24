@@ -80,7 +80,7 @@ rule distro_expr:
         png = report(
             "figures/{design}/distro_expr.png",
             caption="../report/distro_expr.rst",
-            category="Quality Report"
+            category="Quality Control"
         )
     message:
         "Building expression distribution plot for {wildcards.design}"
@@ -118,7 +118,7 @@ rule pca_scree:
         png = report(
             "figures/{design}/pca_scree.png",
             caption="../report/pca_scree.rst",
-            category="Quality Report"
+            category="Quality Control"
         )
     message:
         "Building PCA scree for {wildcards.design}"

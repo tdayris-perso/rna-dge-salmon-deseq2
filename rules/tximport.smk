@@ -61,7 +61,37 @@ rule tx2gene:
     log:
         "logs/tx2gene/transcript_to_gene_id_to_gene_name.log"
     wrapper:
-        f"{git}/bio/gtf/tr2gene"
+        f"{git}/bio/gtf/tx2gene"
+
+
+
+"""
+This rule extracts gene coordinates from a GTF file
+"""
+rule gene2gene:
+    input:
+        gtf = get_gtf_path(config)
+    output:
+        tsv = "tximport/gene_id_to_gene_name.tsv"
+    message:
+        "Building gene ID to gene name correpsondacy table"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: min(attempt * 1024, 10240)
+        ),
+        time_min = (
+            lambda wildcards, attempt: min(attempt * 20, 200)
+        )
+    params:
+        gencode = True,
+        header = True,
+        positions = True
+    log:
+        "logs/gene2gene.log"
+    wrapper:
+        f"{git}/bio/gtf/gene2gene"
 
 
 """
