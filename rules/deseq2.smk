@@ -137,7 +137,7 @@ rule rlog:
         tsv = report(
             "deseq2/{design}/rlog.tsv",
             caption="../report/rlog.rst",
-            category="Results"
+            category="DGE Results"
         )
     message:
         "Building rlog transformation over {wildcards.design}"

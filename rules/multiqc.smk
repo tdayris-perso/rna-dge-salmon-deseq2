@@ -2,11 +2,17 @@ rule :
     input:
         pairwise_scatterplot = "figures/{design}/pairwise_scatterplot_{design}.png",
         volcanoplot = "figures/{design}/Volcano_{intgroup}.png",
+        distro_expr = "figures/{design}/distro_expr.png",
+        ma_plot = "figures/{design}/plotMA/plotMA_{intgroup}.png",
+        pca_axes_correlation = "figures/{design}/pcacorrs.png"
     output:
         multiqc_config = "multiqc/{design}_{intgroup}/multiqc_config.yaml",
         plots = [
             temp("multiqc/{design}_{intgroup}/pairwise_scatterplot_mqc.png"),
-            temp("multiqc/{design}_{intgroup}/volcanoplot_mqc.png")
+            temp("multiqc/{design}_{intgroup}/volcanoplot_mqc.png"),
+            temp("multiqc/{design}_{intgroup}/distro_expr_mqc.png"),
+            temp("multiqc/{design}_{intgroup}/ma_plot_mqc.png"),
+            temp("multiqc/{design}_{intgroup}/pca_axes_correlation_mqc.png")
         ]
     message:
         "Building MultiQC configuration for {wildcards.design}"
@@ -44,7 +50,10 @@ rule multiqc:
         multiqc_config = "multiqc/{design}_{intgroup}/multiqc_config.yaml",
         plots = [
             "multiqc/{design}_{intgroup}/pairwise_scatterplot_mqc.png",
-            "multiqc/{design}_{intgroup}/volcanoplot_mqc.png"
+            "multiqc/{design}_{intgroup}/volcanoplot_mqc.png",
+            "multiqc/{design}_{intgroup}/distro_expr_mqc.png",
+            "multiqc/{design}_{intgroup}/ma_plot_mqc.png",
+            "multiqc/{design}_{intgroup}/pca_axes_correlation_mqc.png"
         ],
         salmon = design.Salmon.tolist()
     output:

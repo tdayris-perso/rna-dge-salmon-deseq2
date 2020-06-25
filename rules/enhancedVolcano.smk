@@ -9,7 +9,7 @@ rule volcanoplot:
         png = report(
             "figures/{design}/Volcano_{intgroup}.png",
             caption="../report/volcanoplot.rst",
-            category="Results"
+            category="DGE Results"
         )
     message:
         "Building volcano plot ({wildcards.design}, {wildcards.intgroup})"
