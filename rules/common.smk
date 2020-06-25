@@ -192,6 +192,12 @@ def get_rdsd_targets(get_tximport: bool = False,
             design=config["models"].keys()
         )
 
+        targets["clustermap_samples"] = expand(
+            "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
+            design=config["models"].keys(),
+            factor=get_intgroups(design, columns_to_drop=reserved, nest=1)
+        )
+
 
 
     return targets

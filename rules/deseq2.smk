@@ -168,7 +168,7 @@ checkpoint nbinomWaldTest:
     input:
         dds = "deseq2/{design}/estimatedDispersions.RDS"
     output:
-        rds = "deseq2/{design}/Wald.RDS",
+        rds = "deseq2/stap_by_step/{design}/Wald.RDS",
         tsv = directory("deseq2/{design}/TSV/")
     message:
         "Performing Wald tests over {wildcards.design}"
@@ -189,6 +189,37 @@ checkpoint nbinomWaldTest:
         "logs/deseq2/nbinomWaldTest/{design}.log"
     wrapper:
         f"{git}/bio/deseq2/nbinomWaldTest"
+
+
+"""
+This rule performs default DESeq2 analysis on a dataset.
+More information: https://github.com/tdayris-perso/snakemake-wrappers/blob/deseq2-waldtest/bio/deseq2/deseq
+"""
+checkpoint deseq:
+    input:
+        dds = "deseq2/{design}/dds.RDS"
+    output:
+        rds = "deseq2/{design}/Wald.RDS",
+        tsv = directory("deseq2/{design}/TSV/")
+    message:
+        "Performing DESeq2 analysis over {wildcards.design}"
+    threads:
+        1
+    resources:
+        mem_mb = (
+            lambda wildcards, attempt: attempt * 8192
+        ),
+        time_min = (
+            lambda wildcards, attempt: attempt * 20
+        )
+    params:
+        alpha_threshold = config["thresholds"].get("alpha_threshold", 0.05),
+        fc_threshold = config["thresholds"].get("fc_threshold", 1),
+        extra = config["params"].get("DESeq2_DESeq_extra", "")
+    log:
+        "logs/deseq2/deseq/{design}.log"
+    wrapper:
+        f"{git}/bio/deseq2/DESeq"
 
 
 """
