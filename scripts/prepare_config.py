@@ -35,30 +35,30 @@ def parser() -> argparse.ArgumentParser:
         description=sys.modules[__name__].__doc__,
         formatter_class=CustomFormatter,
         epilog="This script does not make any magic. Please check the prepared"
-               " configuration file!"
+        " configuration file!",
     )
 
     main_parser.add_argument(
         "gtf",
         help="Path to GTF file (default: %(default)s)",
         type=str,
-        metavar="PATH"
+        metavar="PATH",
     )
 
     main_parser.add_argument(
         "--formulas",
         help="space separated list of R formulas designed to build linear "
-             "model on your data (use simple commas to avoid bash expension)",
+        "model on your data (use simple commas to avoid bash expension)",
         nargs="+",
-        default=['~Condition']
+        default=["~Condition"],
     )
 
     main_parser.add_argument(
         "--model-name",
         help="Space separated list of model names. Each of these name should "
-             "correspond to a single formula. Each name should be unique",
+        "correspond to a single formula. Each name should be unique",
         nargs="+",
-        default=["Condition_model"]
+        default=["Condition_model"],
     )
 
     main_parser.add_argument(
@@ -66,7 +66,7 @@ def parser() -> argparse.ArgumentParser:
         help="Path to working directory (default: %(default)s)",
         type=str,
         metavar="PATH",
-        default="."
+        default=".",
     )
 
     main_parser.add_argument(
@@ -74,7 +74,7 @@ def parser() -> argparse.ArgumentParser:
         help="Path to design file (default: %(default)s)",
         type=str,
         metavar="PATH",
-        default="design.tsv"
+        default="design.tsv",
     )
 
     main_parser.add_argument(
@@ -82,162 +82,158 @@ def parser() -> argparse.ArgumentParser:
         help="Path to output file (default: %(default)s)",
         type=str,
         metavar="PATH",
-        default="config.yaml"
+        default="config.yaml",
     )
 
     main_parser.add_argument(
         "--threads",
         help="Maximum number of threads used (default: %(default)s)",
         type=int,
-        default=1
+        default=1,
     )
 
     main_parser.add_argument(
         "--singularity",
         help="Docker/Singularity image (default: %(default)s)",
         type=str,
-        default="docker://continuumio/miniconda3:4.4.10"
+        default="docker://continuumio/miniconda3:4.4.10",
     )
 
     main_parser.add_argument(
         "--cold-storage",
         help="Space separated list of absolute path to "
-             "cold storage mount points (default: %(default)s)",
+        "cold storage mount points (default: %(default)s)",
         nargs="+",
         type=str,
-        default=[" "]
+        default=[" "],
     )
 
     main_parser.add_argument(
         "--alpha-threshold",
         help="The alpha error threshold (default: %(default)s)",
         type=float,
-        default=0.05
+        default=0.05,
     )
 
     main_parser.add_argument(
         "--fc-threshold",
-        help="The Fold Change significance threshold"
-             " (default: %(default)s)",
+        help="The Fold Change significance threshold" " (default: %(default)s)",
         type=float,
-        default=1.0
+        default=1.0,
     )
 
     main_parser.add_argument(
         "--copy-extra",
-        help="Optional parameters for bash copy"
-             " (default: %(default)s)",
+        help="Optional parameters for bash copy" " (default: %(default)s)",
         type=str,
-        default="--verbose"
+        default="--verbose",
     )
-
 
     main_parser.add_argument(
         "--tximport-extra",
         help="Optional parameters for tximport::tximport"
-             " (default: %(default)s)",
+        " (default: %(default)s)",
         type=str,
-        default="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE"
+        default="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
     )
 
     main_parser.add_argument(
         "--deseq2-estimateSizeFactors-extra",
         help="Extra parameters for estimateSizeFactors"
-             " (default: %(default)s)",
+        " (default: %(default)s)",
         type=str,
-        default="type='ratio', quiet=FALSE"
+        default="type='ratio', quiet=FALSE",
     )
 
     main_parser.add_argument(
         "--deseq2-estimateDispersions-extra",
         help="Extra parameters for estimateDispersions"
-             " (default: %(default)s)",
+        " (default: %(default)s)",
         type=str,
-        default="fitType='local', quiet=FALSE"
+        default="fitType='local', quiet=FALSE",
     )
 
     main_parser.add_argument(
         "--deseq2-rlog-extra",
-        help="Extra parameters for rlog function"
-             " (default: %(default)s)",
+        help="Extra parameters for rlog function" " (default: %(default)s)",
         type=str,
-        default="blind=FALSE, fitType=NULL"
+        default="blind=FALSE, fitType=NULL",
     )
 
     main_parser.add_argument(
         "--deseq2-vst-extra",
-        help="Extra parameters for rlog function"
-             " (default: %(default)s)",
+        help="Extra parameters for rlog function" " (default: %(default)s)",
         type=str,
-        default="blind=FALSE, fitType=NULL"
+        default="blind=FALSE, fitType=NULL",
     )
 
     main_parser.add_argument(
         "--deseq2-nbinomWaldTest-extra",
-        help="Extra parameters for nbinomWaldTest"
-             " (default: %(default)s)",
+        help="Extra parameters for nbinomWaldTest" " (default: %(default)s)",
         type=str,
-        default="quiet=FALSE"
+        default="quiet=FALSE",
     )
 
     main_parser.add_argument(
         "--pcaexplorer-limmaquickpca2go-extra",
         help="Extra parameters for limma pca to go in pcaExplorer",
         type=str,
-        default="organism = 'Hs'"
+        default="organism = 'Hs'",
     )
 
     main_parser.add_argument(
         "--pcaexplorer-distro-expr-extra",
         help="Extra parameters for pcaExplorer's expression distribution plot",
         type=str,
-        default="plot_type='density'"
+        default="plot_type='density'",
     )
 
     main_parser.add_argument(
         "--pcaexplorer-scree-extra",
         help="Extra parameters for PCA scree in pcaExplorer",
         type=str,
-        default="type='pev', pc_nr=10"
+        default="type='pev', pc_nr=10",
     )
 
     main_parser.add_argument(
         "--pcaexplorer-pcacorrs-extra",
         help="Extra parameters for PCA axes correlations "
-             "with experimental design",
+        "with experimental design",
         type=str,
-        default="pcs=1:4"
+        default="pcs=1:4",
     )
 
     main_parser.add_argument(
         "--pcaexplorer-pair-corr-extra",
         help="Extra parameters for PCA sample correlations",
         type=str,
-        default="use_subset=TRUE, log=FALSE"
+        default="use_subset=TRUE, log=FALSE",
     )
 
     main_parser.add_argument(
         "--use-vst",
         help="Use Variance Stabilized Transformation to normalize data, "
-             "instead of regularized log",
+        "instead of regularized log",
         default=False,
-        action="store_true"
+        action="store_true",
     )
 
     # Logging options
     log = main_parser.add_mutually_exclusive_group()
     log.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="Set logging in debug mode",
         default=False,
-        action='store_true'
+        action="store_true",
     )
 
     log.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="Turn off logging behaviour",
         default=False,
-        action='store_true'
+        action="store_true",
     )
     return main_parser
 
@@ -254,7 +250,34 @@ def test_parse_args() -> None:
     Test the argument parsing function
     """
     options = parse(shlex.split("/path/to/file.gtf --debug "))
-    expected = argparse.Namespace(alpha_threshold=0.05, cold_storage=[' '], copy_extra='--verbose', debug=True, deseq2_estimateDispersions_extra="fitType='local', quiet=FALSE", deseq2_estimateSizeFactors_extra="type='ratio', quiet=FALSE", deseq2_nbinomWaldTest_extra='quiet=FALSE', deseq2_rlog_extra='blind=FALSE, fitType=NULL', deseq2_vst_extra='blind=FALSE, fitType=NULL', design='design.tsv', fc_threshold=1.0, formulas=['~Condition'], gtf='/path/to/file.gtf', model_name=['Condition_model'], output='config.yaml', pcaexplorer_distro_expr_extra="plot_type='density'", pcaexplorer_limmaquickpca2go_extra="organism = 'Hs'", pcaexplorer_pair_corr_extra='use_subset=TRUE, log=FALSE', pcaexplorer_pcacorrs_extra='pcs=1:4', pcaexplorer_scree_extra="type='pev', pc_nr=10", quiet=False, singularity='docker://continuumio/miniconda3:4.4.10', threads=1, tximport_extra="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE", use_vst=False, workdir='.')
+    expected = argparse.Namespace(
+        alpha_threshold=0.05,
+        cold_storage=[" "],
+        copy_extra="--verbose",
+        debug=True,
+        deseq2_estimateDispersions_extra="fitType='local', quiet=FALSE",
+        deseq2_estimateSizeFactors_extra="type='ratio', quiet=FALSE",
+        deseq2_nbinomWaldTest_extra="quiet=FALSE",
+        deseq2_rlog_extra="blind=FALSE, fitType=NULL",
+        deseq2_vst_extra="blind=FALSE, fitType=NULL",
+        design="design.tsv",
+        fc_threshold=1.0,
+        formulas=["~Condition"],
+        gtf="/path/to/file.gtf",
+        model_name=["Condition_model"],
+        output="config.yaml",
+        pcaexplorer_distro_expr_extra="plot_type='density'",
+        pcaexplorer_limmaquickpca2go_extra="organism = 'Hs'",
+        pcaexplorer_pair_corr_extra="use_subset=TRUE, log=FALSE",
+        pcaexplorer_pcacorrs_extra="pcs=1:4",
+        pcaexplorer_scree_extra="type='pev', pc_nr=10",
+        quiet=False,
+        singularity="docker://continuumio/miniconda3:4.4.10",
+        threads=1,
+        tximport_extra="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
+        use_vst=False,
+        workdir=".",
+    )
     assert options == expected
 
 
@@ -272,7 +295,7 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
         "ref": {"gtf": args.gtf},
         "thresholds": {
             "alpha_threshold": args.alpha_threshold,
-            "fc_threshold": args.fc_threshold
+            "fc_threshold": args.fc_threshold,
         },
         "params": {
             "copy_extra": args.copy_extra,
@@ -289,7 +312,7 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "pcaexplorer_pair_corr": args.pcaexplorer_pair_corr_extra,
             "pcaexplorer_pcacorrs": args.pcaexplorer_pcacorrs_extra,
         },
-        "models": dict(zip(args.model_name, args.formulas))
+        "models": dict(zip(args.model_name, args.formulas)),
     }
 
     logging.debug(result_dict)
@@ -300,41 +323,43 @@ def test_args_to_dict() -> None:
     """
     Test the above functions
     """
-    expected = {'design': 'design.tsv',
- 'config': 'config.yaml',
- 'workdir': '.',
- 'threads': 1,
- 'singularity_docker_image': 'docker://continuumio/miniconda3:4.4.10',
- 'cold_storage': [' '],
- 'ref': {'gtf': '/path/to/file.gtf'},
- 'thresholds': {'alpha_threshold': 0.05, 'fc_threshold': 1.0},
- 'params': {'copy_extra': '--verbose',
-  'tximport_extra': "type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
-  'DESeq2_estimateSizeFactors_extra': "type='ratio', quiet=FALSE",
-  'DESeq2_estimateDispersions_extra': "fitType='local', quiet=FALSE",
-  'DESeq2_rlog_extra': 'blind=FALSE, fitType=NULL',
-  'DESeq2_vst_extra': 'blind=FALSE, fitType=NULL',
-  'DESeq2_nbinomWaldTest_extra': 'quiet=FALSE',
-  'use_rlog': True,
-  'limmaquickpca2go_extra': "organism = 'Hs'",
-  'pcaexplorer_distro_expr': "plot_type='density'",
-  'pcaexplorer_scree': "type='pev', pc_nr=10",
-  'pcaexplorer_pair_corr': 'use_subset=TRUE, log=FALSE',
-  'pcaexplorer_pcacorrs': 'pcs=1:4'},
- 'models': {'Condition_model': '~Condition'}}
+    expected = {
+        "design": "design.tsv",
+        "config": "config.yaml",
+        "workdir": ".",
+        "threads": 1,
+        "singularity_docker_image": "docker://continuumio/miniconda3:4.4.10",
+        "cold_storage": [" "],
+        "ref": {"gtf": "/path/to/file.gtf"},
+        "thresholds": {"alpha_threshold": 0.05, "fc_threshold": 1.0},
+        "params": {
+            "copy_extra": "--verbose",
+            "tximport_extra": "type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
+            "DESeq2_estimateSizeFactors_extra": "type='ratio', quiet=FALSE",
+            "DESeq2_estimateDispersions_extra": "fitType='local', quiet=FALSE",
+            "DESeq2_rlog_extra": "blind=FALSE, fitType=NULL",
+            "DESeq2_vst_extra": "blind=FALSE, fitType=NULL",
+            "DESeq2_nbinomWaldTest_extra": "quiet=FALSE",
+            "use_rlog": True,
+            "limmaquickpca2go_extra": "organism = 'Hs'",
+            "pcaexplorer_distro_expr": "plot_type='density'",
+            "pcaexplorer_scree": "type='pev', pc_nr=10",
+            "pcaexplorer_pair_corr": "use_subset=TRUE, log=FALSE",
+            "pcaexplorer_pcacorrs": "pcs=1:4",
+        },
+        "models": {"Condition_model": "~Condition"},
+    }
     tested = args_to_dict(parse(shlex.split("/path/to/file.gtf --debug ")))
     assert tested == expected
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse(sys.argv[1:])
     makedirs("logs/prepare/")
 
     # Build logging object and behaviour
     logging.basicConfig(
-        filename="logs/prepare/config.log",
-        filemode="w",
-        level=10
+        filename="logs/prepare/config.log", filemode="w", level=10
     )
 
     try:

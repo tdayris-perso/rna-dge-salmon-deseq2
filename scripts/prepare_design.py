@@ -29,6 +29,7 @@ from typing import Any, Dict, Union  # Typi hinting
 
 from common_script_rna_dge_salmon_deseq2 import CustomFormatter
 
+
 def parser() -> argparse.ArgumentParser:
     """
     Build the argument parser object
@@ -37,46 +38,50 @@ def parser() -> argparse.ArgumentParser:
         description=sys.modules[__name__].__doc__,
         formatter_class=CustomFormatter,
         epilog="This script does not make any magic. Please check the prepared"
-               " configuration file!"
+        " configuration file!",
     )
 
     # Positional arguments
     main_parser.add_argument(
         "salmon_directory",
         help="Path to directory containing multiple salmon quantifications",
-        type=str
+        type=str,
     )
 
     # Optional arguments
     main_parser.add_argument(
-        "-i", "--import-design",
+        "-i",
+        "--import-design",
         help="Path to a TSV-formatted text file containing "
-             "both samples and factors",
+        "both samples and factors",
         default=None,
-        type=str
+        type=str,
     )
 
     main_parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         help="Path to output file",
         default="design.tsv",
-        type=str
+        type=str,
     )
 
     # Logging options
     log = main_parser.add_mutually_exclusive_group()
     log.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="Set logging in debug mode",
         default=False,
-        action='store_true'
+        action="store_true",
     )
 
     log.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="Turn off logging behaviour",
         default=False,
-        action='store_true'
+        action="store_true",
     )
 
     return main_parser
@@ -93,13 +98,20 @@ def test_parse_args() -> None:
     """
     Test the above function
     """
-    expected = argparse.Namespace(debug=False, import_design=None, output='design.tsv', quiet=False, salmon_directory='.')
+    expected = argparse.Namespace(
+        debug=False,
+        import_design=None,
+        output="design.tsv",
+        quiet=False,
+        salmon_directory=".",
+    )
     tested = parse(shlex.split("."))
     assert tested == expected
 
 
-def design_importer(design_path: str,
-                    index_col: Union[str, int] = 0) -> pandas.DataFrame:
+def design_importer(
+    design_path: str, index_col: Union[str, int] = 0
+) -> pandas.DataFrame:
     """
     Load the design file as a pandas dataframe
     """
@@ -108,7 +120,7 @@ def design_importer(design_path: str,
         design_path,
         header=0,
         sep="\t",
-        index_col=(index_col if isinstance(index_col, int) else None)
+        index_col=(index_col if isinstance(index_col, int) else None),
     )
 
     if isinstance(index_col, str):
@@ -147,16 +159,22 @@ def test_find_quantification() -> None:
     Test the above function
     """
     path = "test/pseudo_mapping"
-    expected = pandas.DataFrame([
-        {"Sample_id": f"{name}.chr21.1", "Salmon": f"test/pseudo_mapping/{name}.chr21.1"}
-        for name in ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
-    ]).set_index("Sample_id")
+    expected = pandas.DataFrame(
+        [
+            {
+                "Sample_id": f"{name}.chr21.1",
+                "Salmon": f"test/pseudo_mapping/{name}.chr21.1",
+            }
+            for name in ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
+        ]
+    ).set_index("Sample_id")
     tested = find_quantification(path).sort_index()
     assert tested.equals(expected)
 
 
-def merge_designs(quant_dir: pandas.DataFrame,
-                  imported_design: pandas.DataFrame) -> pandas.DataFrame:
+def merge_designs(
+    quant_dir: pandas.DataFrame, imported_design: pandas.DataFrame
+) -> pandas.DataFrame:
     """
     Merge two design frames
     """
@@ -166,9 +184,9 @@ def merge_designs(quant_dir: pandas.DataFrame,
         imported_design,
         left_index=True,
         right_index=True,
-        how='outer',
+        how="outer",
         validate="1:1",
-        suffixes=["_quant", ""]
+        suffixes=["_quant", ""],
     )
     logging.debug(data.head())
     return data
@@ -180,25 +198,22 @@ def main(args: argparse.ArgumentParser) -> None:
     """
     design = find_quantification(args.salmon_directory)
 
-    if args.import_design is not None and Path(args.import_design).exists() is True:
+    if (
+        args.import_design is not None
+        and Path(args.import_design).exists() is True
+    ):
         old = design_importer(args.import_design)
         design = merge_designs(design.copy(), old)
 
     logging.info(f"Saving results to {str(args.output)}")
-    design.to_csv(
-        args.output,
-        sep="\t",
-        na_rep="NA"
-    )
+    design.to_csv(args.output, sep="\t", na_rep="NA")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse(sys.argv[1:])
     makedirs("logs/prepare")
     logging.basicConfig(
-        filename="logs/prepare/design.log",
-        filemode="w",
-        level=10
+        filename="logs/prepare/design.log", filemode="w", level=10
     )
 
     try:
