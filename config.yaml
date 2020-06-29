@@ -1,25 +1,28 @@
 cold_storage:
 - ' '
+config: config.yaml
 design: design.tsv
+models:
+  Condition_model: ~Condition
 params:
-  models:
-    condition: "~Cond"
-    nesting: "~Nest+Cond"
-  formulas: ' \~1 '
-  libType: ISF
-  salmon_index_extra: ' --kmerLen 5 '
-  salmon_quant_extra: ' --noBiasLengthThreshold --minAssignedFrags 1 --noEffectiveLengthCorrection
-    --noLengthCorrection --fasterMapping --noFragLengthDist --allowDovetail --numPreAuxModelSamples
-    0 --numAuxModelSamples 0 '
+  DESeq2_estimateDispersions_extra: fitType='local', quiet=FALSE
+  DESeq2_estimateSizeFactors_extra: type='ratio', quiet=FALSE
+  DESeq2_nbinomWaldTest_extra: quiet=FALSE
+  DESeq2_rlog_extra: blind=FALSE, fitType=NULL
+  DESeq2_vst_extra: blind=FALSE, fitType=NULL
+  copy_extra: --verbose
+  limmaquickpca2go_extra: organism = 'Hs'
+  pcaexplorer_distro_expr: plot_type='density'
+  pcaexplorer_pair_corr: use_subset=TRUE, log=FALSE
+  pcaexplorer_pcacorrs: pcs=1:4
+  pcaexplorer_scree: type='pev', pc_nr=10
+  tximport_extra: type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE
+  use_rlog: true
 ref:
-  fasta: /home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/rna-count-salmon/tests/genomes/transcriptome.fasta
-  gtf: /home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/rna-count-salmon/tests/genomes/transcriptome.gtf
-rna_count_directory: rna-count-salmon-results
+  gtf: annotation.chr21.gtf
 singularity_docker_image: docker://continuumio/miniconda3:4.4.10
 threads: 1
-workdir: tests
-workflow:
-  aggregate: true
-  fastqc: true
-  multiqc: true
-  no_qc_graphs: false
+thresholds:
+  alpha_threshold: 0.05
+  fc_threshold: 1.0
+workdir: .

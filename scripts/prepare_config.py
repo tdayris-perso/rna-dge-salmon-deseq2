@@ -13,15 +13,16 @@ Usage example:
 python3.8 prepare_config.py --help
 """
 
-import argparse
-import logging
-import sys
-import yaml
+import argparse  # Parse command line
+import logging  # Traces and loggings
+import shlex  # Lexical analysis
+import sys  # System related methods
+import yaml  # Parse Yaml files
 
 
-from pathlib import Path
-from snakemake.utils import makedirs
-from typing import Any, Dict
+from pathlib import Path  # Paths related methods
+from snakemake.utils import makedirs  # Easily build directories
+from typing import Dict, Any  # Typing hints
 
 from common_script_rna_dge_salmon_deseq2 import CustomFormatter, write_yaml
 
@@ -238,7 +239,6 @@ def parser() -> argparse.ArgumentParser:
         default=False,
         action='store_true'
     )
-
     return main_parser
 
 
@@ -247,6 +247,15 @@ def parse(args: Any) -> argparse.ArgumentParser:
     Return an argument parser from command line
     """
     return parser().parse_args(args)
+
+
+def test_parse_args() -> None:
+    """
+    Test the argument parsing function
+    """
+    options = parse(shlex.split("/path/to/file.gtf --debug "))
+    expected = argparse.Namespace(alpha_threshold=0.05, cold_storage=[' '], copy_extra='--verbose', debug=True, deseq2_estimateDispersions_extra="fitType='local', quiet=FALSE", deseq2_estimateSizeFactors_extra="type='ratio', quiet=FALSE", deseq2_nbinomWaldTest_extra='quiet=FALSE', deseq2_rlog_extra='blind=FALSE, fitType=NULL', deseq2_vst_extra='blind=FALSE, fitType=NULL', design='design.tsv', fc_threshold=1.0, formulas=['~Condition'], gtf='/path/to/file.gtf', model_name=['Condition_model'], output='config.yaml', pcaexplorer_distro_expr_extra="plot_type='density'", pcaexplorer_limmaquickpca2go_extra="organism = 'Hs'", pcaexplorer_pair_corr_extra='use_subset=TRUE, log=FALSE', pcaexplorer_pcacorrs_extra='pcs=1:4', pcaexplorer_scree_extra="type='pev', pc_nr=10", quiet=False, singularity='docker://continuumio/miniconda3:4.4.10', threads=1, tximport_extra="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE", use_vst=False, workdir='.')
+    assert options == expected
 
 
 def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
@@ -285,6 +294,36 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
 
     logging.debug(result_dict)
     return result_dict
+
+
+def test_args_to_dict() -> None:
+    """
+    Test the above functions
+    """
+    expected = {'design': 'design.tsv',
+ 'config': 'config.yaml',
+ 'workdir': '.',
+ 'threads': 1,
+ 'singularity_docker_image': 'docker://continuumio/miniconda3:4.4.10',
+ 'cold_storage': [' '],
+ 'ref': {'gtf': '/path/to/file.gtf'},
+ 'thresholds': {'alpha_threshold': 0.05, 'fc_threshold': 1.0},
+ 'params': {'copy_extra': '--verbose',
+  'tximport_extra': "type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
+  'DESeq2_estimateSizeFactors_extra': "type='ratio', quiet=FALSE",
+  'DESeq2_estimateDispersions_extra': "fitType='local', quiet=FALSE",
+  'DESeq2_rlog_extra': 'blind=FALSE, fitType=NULL',
+  'DESeq2_vst_extra': 'blind=FALSE, fitType=NULL',
+  'DESeq2_nbinomWaldTest_extra': 'quiet=FALSE',
+  'use_rlog': True,
+  'limmaquickpca2go_extra': "organism = 'Hs'",
+  'pcaexplorer_distro_expr': "plot_type='density'",
+  'pcaexplorer_scree': "type='pev', pc_nr=10",
+  'pcaexplorer_pair_corr': 'use_subset=TRUE, log=FALSE',
+  'pcaexplorer_pcacorrs': 'pcs=1:4'},
+ 'models': {'Condition_model': '~Condition'}}
+    tested = args_to_dict(parse(shlex.split("/path/to/file.gtf --debug ")))
+    assert tested == expected
 
 
 if __name__ == '__main__':

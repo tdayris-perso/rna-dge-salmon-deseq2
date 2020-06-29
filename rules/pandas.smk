@@ -60,7 +60,9 @@ rule seaborn_clustermap:
         )
     params:
         conditions = lambda wildcards: dict(zip(design.Sample_id, design[wildcards.factor])),
-        factor = lambda wildcards: wildcards.factor
+        factor = lambda wildcards: wildcards.factor,
+        ylabel_rotation = 0,
+        xlabel_rotation = 90
     log:
         "logs/seaborn/clustermap/{design}_{factor}.log"
     wrapper:

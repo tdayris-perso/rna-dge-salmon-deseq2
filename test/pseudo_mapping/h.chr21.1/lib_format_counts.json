@@ -1,0 +1,25 @@
+{
+    "read_files": [
+        "raw_data/h.chr21.1.fq",
+        "raw_data/h.chr21.2.fq"
+    ],
+    "expected_format": "IU",
+    "compatible_fragment_ratio": 1.0,
+    "num_compatible_fragments": 1016,
+    "num_assigned_fragments": 1016,
+    "num_frags_with_concordant_consistent_mappings": 596,
+    "num_frags_with_inconsistent_or_orphan_mappings": 472,
+    "strand_mapping_bias": 0.5184563758389261,
+    "MSF": 0,
+    "OSF": 0,
+    "ISF": 287,
+    "MSR": 0,
+    "OSR": 0,
+    "ISR": 309,
+    "SF": 246,
+    "SR": 226,
+    "MU": 0,
+    "OU": 0,
+    "IU": 0,
+    "U": 0
+}

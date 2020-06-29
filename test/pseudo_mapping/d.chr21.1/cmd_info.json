@@ -1,0 +1,15 @@
+{
+    "salmon_version": "0.14.1",
+    "index": "salmon_index/genome_index",
+    "libType": "A",
+    "mates1": "raw_data/d.chr21.1.fq",
+    "mates2": "raw_data/d.chr21.2.fq",
+    "output": "pseudo_mapping/d.chr21.1",
+    "threads": "3",
+    "numBootstraps": "100",
+    "validateMappings": [],
+    "gcBias": [],
+    "seqBias": [],
+    "geneMap": "genomes/annotation.chr21.gtf",
+    "auxDir": "aux_info"
+}

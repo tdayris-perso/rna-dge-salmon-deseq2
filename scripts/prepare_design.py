@@ -17,14 +17,15 @@ Usage example:
 python3.8 prepare_design.py /path/to/salmon_counts
 """
 
-import argparse
-import logging
-import pandas
-import sys
+import argparse  # Parse command line arguments
+import logging  # Logging behavior
+import pandas  # Handle large tables
+import shlex  # Handle teext like command line input
+import sys  # System related operations
 
-from pathlib import Path
-from snakemake.utils import makedirs
-from typing import Any, Dict, Union
+from pathlib import Path  # Handle paths and file system
+from snakemake.utils import makedirs  # Easily build recursive directories
+from typing import Any, Dict, Union  # Typi hinting
 
 from common_script_rna_dge_salmon_deseq2 import CustomFormatter
 
@@ -88,6 +89,15 @@ def parse(args: Any) -> argparse.ArgumentParser:
     return parser().parse_args(args)
 
 
+def test_parse_args() -> None:
+    """
+    Test the above function
+    """
+    expected = argparse.Namespace(debug=False, import_design=None, output='design.tsv', quiet=False, salmon_directory='.')
+    tested = parse(shlex.split("."))
+    assert tested == expected
+
+
 def design_importer(design_path: str,
                     index_col: Union[str, int] = 0) -> pandas.DataFrame:
     """
@@ -130,6 +140,19 @@ def find_quantification(salmon_path: str) -> Dict[str, str]:
     data.set_index("Sample_id", inplace=True)
     logging.debug(data.head())
     return data
+
+
+def test_find_quantification() -> None:
+    """
+    Test the above function
+    """
+    path = "test/pseudo_mapping"
+    expected = pandas.DataFrame([
+        {"Sample_id": f"{name}.chr21.1", "Salmon": f"test/pseudo_mapping/{name}.chr21.1"}
+        for name in ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
+    ]).set_index("Sample_id")
+    tested = find_quantification(path).sort_index()
+    assert tested.equals(expected)
 
 
 def merge_designs(quant_dir: pandas.DataFrame,

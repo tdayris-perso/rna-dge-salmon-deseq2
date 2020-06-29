@@ -1,7 +1,10 @@
-Sample_id	Upstream_file	Downstream_file	Cond	Nest
-SRR493366_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493366_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493366_2.fastq.gz	A	C
-SRR493367_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493367_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493367_2.fastq.gz	A	D
-SRR493368_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493368_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493368_2.fastq.gz	A	C
-SRR493369_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493369_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493369_2.fastq.gz	B	D
-SRR493370_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493370_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493370_2.fastq.gz	B	C
-SRR493371_1.fastq	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493371_1.fastq.gz	/home/tdayris/Documents/Developpement/tdayris-perso/rna-dge-salmon-deseq2/../../../Datasets/Trapnell/SRR493371_2.fastq.gz	B	D
+Sample_id	Condition
+a.chr21.1	B
+b.chr21.1	B
+c.chr21.1	A
+d.chr21.1	A
+e.chr21.1	A
+f.chr21.1	B
+g.chr21.1	A
+h.chr21.1	B
+i.chr21.1	B
