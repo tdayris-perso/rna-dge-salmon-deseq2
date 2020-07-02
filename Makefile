@@ -34,6 +34,12 @@ PCA_CORRS_ARGS   = 'pc=1'
 default: all-unit-tests
 
 
+all-unit-tests:
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
+	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} ${TEST_DESIGN}
+.PHONY: all-unit-tests
+
+
 # Environment building through conda
 conda-tests:
 	${CONDA_ACTIVATE} base && \
