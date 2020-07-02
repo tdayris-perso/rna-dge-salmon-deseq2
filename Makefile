@@ -70,6 +70,11 @@ test-conda-report.html:
 	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS}
 
 
+clean:
+	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output
+.PHONY: clean
+
+
 
 # Display pipeline graph
 workflow.png:
