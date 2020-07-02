@@ -6,7 +6,7 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     branches:
@@ -27,7 +27,7 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Setup conda
-      run: bash .github/workflows.setup.sh
+      run: bash .github/workflows/setup.sh
   pipeline_test:
     name: Pipeline Tests
     runs-on: ubuntu-latest
