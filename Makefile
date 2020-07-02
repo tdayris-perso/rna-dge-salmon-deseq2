@@ -12,7 +12,7 @@ BASH             = bash
 CONDA            = conda
 PYTHON           = python3.8
 SNAKEMAKE        = snakemake
-CONDA_ACTIVATE   = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
+CONDA_ACTIVATE   = source $$(conda info --base)/etc/profile.d/conda.sh && conda activate && conda activate
 
 # Paths
 TEST_CONFIG      = scripts/prepare_config.py
