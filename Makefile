@@ -63,7 +63,7 @@ design-tests:
 .PHONY: design-tests
 
 test-conda-report.html:
-	${CONDA_ACTIVATE} ${ENV_NAME} &&
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTHON} ${TEST_CONFIG} ${GTF_PATH} --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
@@ -71,6 +71,7 @@ test-conda-report.html:
 
 
 clean:
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output
 .PHONY: clean
 
@@ -78,13 +79,13 @@ clean:
 
 # Display pipeline graph
 workflow.png:
-	${CONDA_ACTIVATE} ${ENV_NAME} &&
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTHON} ${TEST_CONFIG} ${GTF_PATH} --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --rulegraph | dot -T png > workflow.png
 
 example.png:
-	${CONDA_ACTIVATE} ${ENV_NAME} &&
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTHON} ${TEST_CONFIG} ${GTF_PATH} --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --dag | dot -T png > example.png
