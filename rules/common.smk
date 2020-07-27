@@ -10,7 +10,7 @@ import os.path as op    # Path and file system manipulation
 import sys              # System related operations
 
 
-from pathlib import Path
+from pathlib import Path               # Easily handle file paths
 from typing import Any, Dict, Generator, List     # Give IO information
 import pandas as pd                    # Deal with TSV files (design)
 from snakemake.utils import validate   # Check Yaml/TSV formats
@@ -43,13 +43,14 @@ design = pd.read_csv(
 design.set_index(design["Sample_id"])
 validate(design, schema="../schemas/design.schema.yaml")
 
+# Define Pipeline-dependent column name, that are not going to be plotted
+# or appear in reports
 reserved = {"Sample_id", "Upstream_file",
             "Downstream_file", "Salmon"}
 
 
 wildcard_constraints:
     design = "|".join(config["models"].keys()),
-    #intgroup = "|".join(get_intgroups(design, columns_to_drop=reserved)),
     elipse = "|".join(["with_elipse", "without_elipse"]),
     a = '|'.join(map(str, range(1, 10))),
     b = '|'.join(map(str, range(1, 10)))
@@ -61,22 +62,31 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
     """
     This function solves the checkpoint IO streams for DESeq2
     """
-    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    try:
+        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    except TypeError:
+        intgroups = wildcards
+
+    intgroups_w = glob_wildcards(
+        os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+    ).intgroup
     return expand(
         "GSEA/{design}/{intgroup}.{content}.tsv",
-        design=wildcards.design,
-        intgroup=[n for n in glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"],
+        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        intgroup=[n for n in intgroups_w if n != "Intercept"],
         content=["complete", "fc_fc", "padj_fc"]
     )
 
 
+
 def volcano_png(wildcards: Any) -> Generator[str, None, None]:
-    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    try:
+        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    except TypeError:
+        intgroups = wildcards
     return expand(
         "figures/{design}/Volcano_{intgroup}.png",
-        design=wildcards.design,
+        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -84,10 +94,13 @@ def volcano_png(wildcards: Any) -> Generator[str, None, None]:
 
 
 def maplot_png(wildcards: Any) -> Generator[str, None, None]:
-    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    try:
+        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    except TypeError:
+        intgroups = wildcards
     return expand(
         "figures/{design}/plotMA/plotMA_{intgroup}.png",
-        design=wildcards.design,
+        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -95,10 +108,13 @@ def maplot_png(wildcards: Any) -> Generator[str, None, None]:
 
 
 def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
-    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    try:
+        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    except TypeError:
+        intgroups = wildcards
     return expand(
         "multiqc/{design}_{intgroup}/report.html",
-        design=wildcards.design,
+        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -106,14 +122,22 @@ def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
 
 
 def pca_plots(wildcards: Any) -> Generator[str, None, None]:
-    intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    try:
+        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+    except TypeError:
+        intgroups = wildcards
+
+    axes_w = [
+        f"ax_{a}_ax_{b}"
+        for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))
+    ]
     return expand(
         "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
-        design=wildcards.design,
+        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"],
-        axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))],
+        axes=axes_w,
         elipse=["with_elipse", "with_elipse"]
     )
 
@@ -183,7 +207,12 @@ def get_rdsd_targets(get_tximport: bool = False,
             "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
             design=config["models"].keys(),
             intgroup=get_intgroups(design, columns_to_drop=reserved, nest=1),
-            axes=[f"ax_{a}_ax_{b}" for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))],
+            axes=[
+                f"ax_{a}_ax_{b}"
+                for a, b in get_axes(
+                    max_axes=config["params"].get("max_axes", 4)
+                )
+            ],
             elipse=["with_elipse", "with_elipse"]
         )
 
@@ -198,6 +227,25 @@ def get_rdsd_targets(get_tximport: bool = False,
             factor=get_intgroups(design, columns_to_drop=reserved, nest=1)
         )
 
+        if config.get("report", False):
+            targets["gsea"] = expand(
+                gsea_tsv("{design}"),
+                design = config["models"].keys()
+            )
 
+            targets["volcano_plots"] = expand(
+                volcano_png("{design}"),
+                design = config["models"].keys()
+            )
+
+            targets["maplots"] = expand(
+                maplot_png("{design}"),
+                design = config["models"].keys()
+            )
+
+            targets["multiqc"] = expand(
+                multiqc_reports("{design}"),
+                design=config["models"].keys()
+            )
 
     return targets
