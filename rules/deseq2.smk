@@ -297,7 +297,11 @@ rule zip_deseq2_results:
         multiqc = lambda wildcards: multiqc_reports(wildcards),
         gsea = lambda wildcards: gsea_tsv(wildcards)
     output:
-        "Results/{design}/Results_archive.tar.bz2"
+        report(
+            "Results/{design}/Results_archive.tar.bz2",
+            caption="../report/archive_deseq2.rst",
+            category="Archives"
+        )
     message:
         "Tar bzipping all Volcano plots for {wildcards.design}"
     threads:
