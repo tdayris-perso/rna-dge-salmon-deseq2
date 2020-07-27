@@ -277,7 +277,7 @@ def test_parse_args() -> None:
         pcaexplorer_distro_expr_extra="plot_type='density'",
         pcaexplorer_limmaquickpca2go_extra="organism = 'Hs'",
         pcaexplorer_pair_corr_extra="use_subset=TRUE, log=FALSE",
-        pcaexplorer_pcacorrs_extra="pcs=1:4",
+        pcaexplorer_pcacorrs_extra="pc=1",
         pcaexplorer_scree_extra="type='pev', pc_nr=10",
         quiet=False,
         singularity="docker://continuumio/miniconda3:4.4.10",
