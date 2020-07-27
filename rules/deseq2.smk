@@ -102,7 +102,7 @@ rule vst:
         tsv = report(
             "deseq2/{design}/VST.tsv",
             caption="../report/vst.rst",
-            category="DGE Results"
+            category="Normalized counts"
         )
     message:
         "Building variance stabilized transformation over {wildcards.design}"
@@ -137,7 +137,7 @@ rule rlog:
         tsv = report(
             "deseq2/{design}/rlog.tsv",
             caption="../report/rlog.rst",
-            category="DGE Results"
+            category="Normalized Counts"
         )
     message:
         "Building rlog transformation over {wildcards.design}"
@@ -268,7 +268,7 @@ rule plotMA:
         png = report(
             "figures/{design}/plotMA/plotMA_{intgroup}.png",
             caption="../report/maplot.rst",
-            category="Quality Control"
+            category="MA plots"
         )
     message:
         "Building MAplot for {wildcards.design}, "

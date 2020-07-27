@@ -80,7 +80,7 @@ rule distro_expr:
         png = report(
             "figures/{design}/distro_expr.png",
             caption="../report/distro_expr.rst",
-            category="Quality Control"
+            category="Distribution of Expressions"
         )
     message:
         "Building expression distribution plot for {wildcards.design}"
@@ -118,7 +118,7 @@ rule pca_scree:
         png = report(
             "figures/{design}/pca_scree.png",
             caption="../report/pca_scree.rst",
-            category="Quality Control"
+            category="PCA"
         )
     message:
         "Building PCA scree for {wildcards.design}"
@@ -156,7 +156,7 @@ rule pcaexplorer_pcacorrs:
         png = report(
             "figures/{design}/pcacorrs.png",
             caption="../report/pca_corr.rst",
-            category="Quality Control"
+            category="PCA"
         )
     message:
         "Building PCA correlations for {wildcards.design}"
@@ -194,7 +194,7 @@ rule pcaexplorer_pca:
         png = report(
             "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png",
             caption="../report/pca.rst",
-            category="Quality Control"
+            category="PCA"
         )
     message:
         "Plotting PCA for {wildcards.design} ({wildcards.intgroup}:"
@@ -228,7 +228,7 @@ rule pcaexplorer_pair_corr:
         png = report(
             "figures/{design}/pairwise_scatterplot_{design}.png",
             caption="../report/pcaexplorer_pair_corr.rst",
-            category="Quality Control"
+            category="Pairwise Scatterplot"
         )
     message:
         "Plotting pairwise scatterplot on {wildcards.design}"

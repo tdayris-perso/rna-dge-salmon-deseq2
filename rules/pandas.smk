@@ -45,7 +45,7 @@ rule seaborn_clustermap:
         png = report(
             "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
             caption="../report/clustermap_sample.rst",
-            category="Quality Control"
+            category="Clustered Heatmap"
         )
     message:
         "Building sample clustered heatmap on {wildcards.design}"

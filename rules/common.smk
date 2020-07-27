@@ -149,7 +149,7 @@ def get_rdsd_targets(get_tximport: bool = False,
             design=config["models"].keys()
         )
 
-        targets["volcano"] = expand(
+        targets["archive"] = expand(
             "Results/{design}/Results_archive.tar.bz2",
             design=config["models"].keys()
         )
