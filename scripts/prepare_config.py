@@ -200,7 +200,7 @@ def parser() -> argparse.ArgumentParser:
         help="Extra parameters for PCA axes correlations "
         "with experimental design",
         type=str,
-        default="pcs=1:4",
+        default="pc=1",
     )
 
     main_parser.add_argument(
@@ -216,6 +216,13 @@ def parser() -> argparse.ArgumentParser:
         "instead of regularized log",
         default=False,
         action="store_true",
+    )
+
+    main_parser.add_argument(
+        "--pca-axes-depth",
+        help="Maximum number of axes plotted in PCAs",
+        default=2,
+        type=int
     )
 
     # Logging options
@@ -266,6 +273,7 @@ def test_parse_args() -> None:
         gtf="/path/to/file.gtf",
         model_name=["Condition_model"],
         output="config.yaml",
+        pca_axes_depth=2,
         pcaexplorer_distro_expr_extra="plot_type='density'",
         pcaexplorer_limmaquickpca2go_extra="organism = 'Hs'",
         pcaexplorer_pair_corr_extra="use_subset=TRUE, log=FALSE",
@@ -311,6 +319,7 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "pcaexplorer_scree": args.pcaexplorer_scree_extra,
             "pcaexplorer_pair_corr": args.pcaexplorer_pair_corr_extra,
             "pcaexplorer_pcacorrs": args.pcaexplorer_pcacorrs_extra,
+            "pca_axes_depth": args.pca_axes_depth
         },
         "models": dict(zip(args.model_name, args.formulas)),
     }
@@ -345,7 +354,8 @@ def test_args_to_dict() -> None:
             "pcaexplorer_distro_expr": "plot_type='density'",
             "pcaexplorer_scree": "type='pev', pc_nr=10",
             "pcaexplorer_pair_corr": "use_subset=TRUE, log=FALSE",
-            "pcaexplorer_pcacorrs": "pcs=1:4",
+            "pcaexplorer_pcacorrs": "pc=1",
+            "pca_axes_depth": 2
         },
         "models": {"Condition_model": "~Condition"},
     }
