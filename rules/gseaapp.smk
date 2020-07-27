@@ -22,7 +22,7 @@ rule deseq2_to_gseaapp:
             caption="../report/gseapp_padj_fc.rst"
         )
     message:
-        "Subsetting DESeq2 results for {wildcards.factor} ({wildcards.factor})"
+        "Subsetting DESeq2 results for {wildcards.design} ({wildcards.factor})"
     threads:
         1
     resources:
