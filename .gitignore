@@ -4,3 +4,13 @@
 test/config.yaml
 test/design.tsv
 logs/
+test/deseq2
+test/figures
+test/genomes
+test/GSEA
+test/multiqc
+test/pcaExplorer
+test/Results
+test/tximport
+test/sample_clustered_heatmap
+test/*.html
