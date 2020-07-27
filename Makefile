@@ -67,7 +67,7 @@ test-conda-report.html:
 	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --model-name Complete  --formulas '~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
-	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS}
+	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --config "report=True" --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS} --configfile ${PWD}/test/config.yaml
 
 
 clean:
