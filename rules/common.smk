@@ -52,6 +52,7 @@ reserved = {"Sample_id", "Upstream_file",
 wildcard_constraints:
     design = "|".join(config["models"].keys()),
     elipse = "|".join(["with_elipse", "without_elipse"]),
+    intgroup = r"[^/]+",
     a = '|'.join(map(str, range(1, 10))),
     b = '|'.join(map(str, range(1, 10)))
 
@@ -64,15 +65,16 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
     """
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+        design = wildcards.design
     except TypeError:
-        intgroups = wildcards
+        intgroups = design = wildcards
 
     intgroups_w = glob_wildcards(
         os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
     ).intgroup
     return expand(
         "GSEA/{design}/{intgroup}.{content}.tsv",
-        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        design=design,
         intgroup=[n for n in intgroups_w if n != "Intercept"],
         content=["complete", "fc_fc", "padj_fc"]
     )
@@ -82,11 +84,12 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
 def volcano_png(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+        design = wildcards.design
     except TypeError:
-        intgroups = wildcards
+        intgroups = design = wildcards
     return expand(
         "figures/{design}/Volcano_{intgroup}.png",
-        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        design=design,
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -96,11 +99,12 @@ def volcano_png(wildcards: Any) -> Generator[str, None, None]:
 def maplot_png(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+        design = wildcards.design
     except TypeError:
-        intgroups = wildcards
+        intgroups = design = wildcards
     return expand(
         "figures/{design}/plotMA/plotMA_{intgroup}.png",
-        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        design=design,
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -110,11 +114,12 @@ def maplot_png(wildcards: Any) -> Generator[str, None, None]:
 def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+        design = wildcards.design
     except TypeError:
-        intgroups = wildcards
+        intgroups = design = wildcards
     return expand(
         "multiqc/{design}_{intgroup}/report.html",
-        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        design=design,
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"]
@@ -124,8 +129,9 @@ def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
 def pca_plots(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
+        design = wildcards.design
     except TypeError:
-        intgroups = wildcards
+        intgroups = design = wildcards
 
     axes_w = [
         f"ax_{a}_ax_{b}"
@@ -133,7 +139,7 @@ def pca_plots(wildcards: Any) -> Generator[str, None, None]:
     ]
     return expand(
         "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
-        design=(intgroups if isinstance(intgroups, str) else wildcards.design),
+        design=design,
         intgroup=[n for n in glob_wildcards(
             os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
         ).intgroup if n != "Intercept"],
