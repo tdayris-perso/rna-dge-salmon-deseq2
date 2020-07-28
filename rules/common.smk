@@ -65,50 +65,57 @@ def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
     """
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        design = wildcards.design
+        intgroups_w = glob_wildcards(
+            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+        ).intgroup
+        return expand(
+            "GSEA/{design}/{intgroup}.{content}.tsv",
+            design=wildcards.design,
+            intgroup=[n for n in intgroups_w if n != "Intercept"],
+            content=["complete", "fc_fc", "padj_fc"]
+        )
     except TypeError:
-        intgroups = design = wildcards
-
-    intgroups_w = glob_wildcards(
-        os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-    ).intgroup
-    return expand(
-        "GSEA/{design}/{intgroup}.{content}.tsv",
-        design=design,
-        intgroup=[n for n in intgroups_w if n != "Intercept"],
-        content=["complete", "fc_fc", "padj_fc"]
-    )
+        return [
+            tsv for tsv in Path(f"GSEA/{wildcards}").iterdir()
+            if tsv.name.endswith(".tsv")
+        ]
 
 
 
 def volcano_png(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        design = wildcards.design
+        return expand(
+            "figures/{design}/Volcano_{intgroup}.png",
+            design=wildcards.design,
+            intgroup=[n for n in glob_wildcards(
+                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+            ).intgroup if n != "Intercept"]
+        )
     except TypeError:
-        intgroups = design = wildcards
-    return expand(
-        "figures/{design}/Volcano_{intgroup}.png",
-        design=design,
-        intgroup=[n for n in glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"]
-    )
+        return [
+            png for png in Path(f"figures/{wildcards}/").iterdir()
+            if png.name.startswith("Volcano_") and png.name.endswith(".png")
+        ]
+
 
 
 def maplot_png(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        design = wildcards.design
+        return expand(
+            "figures/{design}/plotMA/plotMA_{intgroup}.png",
+            design=wildcards.design,
+            intgroup=[n for n in glob_wildcards(
+                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+            ).intgroup if n != "Intercept"]
+        )
     except TypeError:
-        intgroups = design = wildcards
-    return expand(
-        "figures/{design}/plotMA/plotMA_{intgroup}.png",
-        design=design,
-        intgroup=[n for n in glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"]
-    )
+        return [
+            png for png in Path(f"figures/{wildcards}/plotMA").iterdir()
+            if png.name.startswith("plotMA_") and png.name.endswith(".png")
+        ]
+
 
 
 def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
@@ -129,23 +136,26 @@ def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
 def pca_plots(wildcards: Any) -> Generator[str, None, None]:
     try:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        design = wildcards.design
+        axes_w = [
+            f"ax_{a}_ax_{b}"
+            for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))
+        ]
+        return expand(
+            "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
+            design=wildcards.design,
+            intgroup=[n for n in glob_wildcards(
+                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
+            ).intgroup if n != "Intercept"],
+            axes=axes_w,
+            elipse=["with_elipse", "with_elipse"]
+        )
     except TypeError:
-        intgroups = design = wildcards
+        return [
+            png for png in Path(f"figures/{design}/pca/").iterdir()
+            if png.name.startswith("pca_") and png.name.endswith(".png")
+        ]
 
-    axes_w = [
-        f"ax_{a}_ax_{b}"
-        for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))
-    ]
-    return expand(
-        "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
-        design=design,
-        intgroup=[n for n in glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"],
-        axes=axes_w,
-        elipse=["with_elipse", "with_elipse"]
-    )
+
 
 
 def get_rdsd_targets(get_tximport: bool = False,
@@ -234,24 +244,24 @@ def get_rdsd_targets(get_tximport: bool = False,
         )
 
         if config.get("report", False):
-            targets["gsea"] = expand(
-                gsea_tsv("{design}"),
-                design = config["models"].keys()
-            )
+            targets["gsea"] = [
+                gsea_tsv(design)
+                for design in config["models"].keys()
+            ]
 
-            targets["volcano_plots"] = expand(
-                volcano_png("{design}"),
-                design = config["models"].keys()
-            )
+            targets["volcano_plots"] = [
+                volcano_png(design)
+                for design in config["models"].keys()
+            ]
 
-            targets["maplots"] = expand(
-                maplot_png("{design}"),
-                design = config["models"].keys()
-            )
+            targets["maplots"] = [
+                maplot_png(design)
+                for design in config["models"].keys()
+            ]
 
-            targets["multiqc"] = expand(
-                multiqc_reports("{design}"),
-                design=config["models"].keys()
-            )
+            targets["multiqc"] = [
+                multiqc_reports(design)
+                for design in config["models"].keys()
+            ]
 
     return targets
