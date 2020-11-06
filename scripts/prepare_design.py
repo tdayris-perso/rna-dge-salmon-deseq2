@@ -27,10 +27,7 @@ from pathlib import Path  # Handle paths and file system
 from snakemake.utils import makedirs  # Easily build recursive directories
 from typing import Any, Dict, Union  # Typi hinting
 
-try:
-    from scripts.common_script_rna_dge_salmon_deseq2 import *
-except ModuleNotFoundError:
-    from common_script_rna_dge_salmon_deseq2 import *
+from common_script_rna_dge_salmon_deseq2 import *
 
 
 def parser() -> argparse.ArgumentParser:
@@ -39,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
     """
     main_parser = argparse.ArgumentParser(
         description=sys.modules[__name__].__doc__,
-        formatter_class=common_script_rna_dge_salmon_deseq2.CustomFormatter,
+        formatter_class=CustomFormatter,
         epilog="This script does not make any magic. Please check the prepared"
         " configuration file!",
     )

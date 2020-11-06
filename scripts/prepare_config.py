@@ -24,10 +24,7 @@ from pathlib import Path  # Paths related methods
 from snakemake.utils import makedirs  # Easily build directories
 from typing import Dict, Any  # Typing hints
 
-try:
-    import scripts.common_script_rna_dge_salmon_deseq2
-except ModuleNotFoundError:
-    import common_script_rna_dge_salmon_deseq2
+import common_script_rna_dge_salmon_deseq2
 
 
 def parser() -> argparse.ArgumentParser:
