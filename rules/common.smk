@@ -138,7 +138,9 @@ def pca_plots(wildcards: Any) -> Generator[str, None, None]:
         intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
         axes_w = [
             f"ax_{a}_ax_{b}"
-            for a, b in get_axes(max_axes=config["params"].get("max_axes", 4))
+            for a, b in get_axes(
+                max_axes=config["params"].get("pca_axes_depth", 4)
+            )
         ]
         return expand(
             "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",

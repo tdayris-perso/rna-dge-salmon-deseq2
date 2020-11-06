@@ -24,7 +24,10 @@ from pathlib import Path  # Paths related methods
 from snakemake.utils import makedirs  # Easily build directories
 from typing import Dict, Any  # Typing hints
 
-from common_script_rna_dge_salmon_deseq2 import CustomFormatter, write_yaml
+try:
+    import scripts.common_script_rna_dge_salmon_deseq2
+except ModuleNotFoundError:
+    import common_script_rna_dge_salmon_deseq2
 
 
 def parser() -> argparse.ArgumentParser:
@@ -33,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
     """
     main_parser = argparse.ArgumentParser(
         description=sys.modules[__name__].__doc__,
-        formatter_class=CustomFormatter,
+        formatter_class=common_script_rna_dge_salmon_deseq2.CustomFormatter,
         epilog="This script does not make any magic. Please check the prepared"
         " configuration file!",
     )
@@ -214,7 +217,7 @@ def parser() -> argparse.ArgumentParser:
         "--use-vst",
         help="Use Variance Stabilized Transformation to normalize data, "
         "instead of regularized log",
-        default=False,
+        default=True,
         action="store_true",
     )
 
@@ -363,6 +366,17 @@ def test_args_to_dict() -> None:
     assert tested == expected
 
 
+def main(args: argparse.ArgumentParser) -> None:
+    """
+    Main function of the script
+    """
+    config_dict = args_to_dict(args)
+    common_script_rna_dge_salmon_deseq2.write_yaml(
+        Path(args.output),
+        config_dict
+    )
+
+
 if __name__ == "__main__":
     args = parse(sys.argv[1:])
     makedirs("logs/prepare/")
@@ -373,8 +387,7 @@ if __name__ == "__main__":
     )
 
     try:
-        config_dict = args_to_dict(args)
-        write_yaml(Path(args.output), config_dict)
+        main(args)
     except Exception as e:
         logging.exception("%s", e)
         raise
