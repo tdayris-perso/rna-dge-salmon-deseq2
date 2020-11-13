@@ -15,16 +15,12 @@ from typing import Any, Dict, Generator, List     # Give IO information
 import pandas as pd                    # Deal with TSV files (design)
 from snakemake.utils import validate   # Check Yaml/TSV formats
 
-try:
-    from common_rna_dge_salmon_deseq2 import *
-except ImportError:
-    raise
+from common_rna_dge_salmon_deseq2 import *
 
 # Snakemake-Wrappers version
-wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.50.3"
+wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.67.0"
 # github prefix
 git = "https://raw.githubusercontent.com/tdayris/snakemake-wrappers/Unofficial"
-
 local = "file:/home/tdayris/Documents/Developments/snakemake-wrappers/"
 
 # Loading configuration
@@ -32,7 +28,7 @@ if config == dict():
     configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
-# Loading deisgn file
+# Loading design file
 design = pd.read_csv(
     config["design"],
     sep="\t",
@@ -59,211 +55,95 @@ wildcard_constraints:
 report: "../report/general.rst"
 
 
-def gsea_tsv(wildcards: Any) -> Generator[str, None, None]:
-    """
-    This function solves the checkpoint IO streams for DESeq2
-    """
-    try:
-        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        intgroups_w = glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup
-        return expand(
-            "GSEA/{design}/{intgroup}.{content}.tsv",
-            design=wildcards.design,
-            intgroup=[n for n in intgroups_w if n != "Intercept"],
-            content=["complete", "fc_fc", "padj_fc"]
-        )
-    except TypeError:
-        return [
-            tsv for tsv in Path(f"GSEA/{wildcards}").iterdir()
-            if tsv.name.endswith(".tsv")
-        ]
-
-
-
-def volcano_png(wildcards: Any) -> Generator[str, None, None]:
-    try:
-        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        return expand(
-            "figures/{design}/Volcano_{intgroup}.png",
-            design=wildcards.design,
-            intgroup=[n for n in glob_wildcards(
-                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-            ).intgroup if n != "Intercept"]
-        )
-    except TypeError:
-        return [
-            png for png in Path(f"figures/{wildcards}/").iterdir()
-            if png.name.startswith("Volcano_") and png.name.endswith(".png")
-        ]
-
-
-
-def maplot_png(wildcards: Any) -> Generator[str, None, None]:
-    try:
-        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        return expand(
-            "figures/{design}/plotMA/plotMA_{intgroup}.png",
-            design=wildcards.design,
-            intgroup=[n for n in glob_wildcards(
-                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-            ).intgroup if n != "Intercept"]
-        )
-    except TypeError:
-        return [
-            png for png in Path(f"figures/{wildcards}/plotMA").iterdir()
-            if png.name.startswith("plotMA_") and png.name.endswith(".png")
-        ]
-
-
-
-def multiqc_reports(wildcards: Any) -> Generator[str, None, None]:
-    try:
-        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        design = wildcards.design
-    except TypeError:
-        intgroups = design = wildcards
-    return expand(
-        "multiqc/{design}_{intgroup}/report.html",
-        design=design,
-        intgroup=[n for n in glob_wildcards(
-            os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-        ).intgroup if n != "Intercept"]
-    )
-
-
-def pca_plots(wildcards: Any) -> Generator[str, None, None]:
-    try:
-        intgroups = checkpoints.nbinomWaldTest.get(**wildcards).output.tsv
-        axes_w = [
-            f"ax_{a}_ax_{b}"
-            for a, b in get_axes(
-                max_axes=config["params"].get("pca_axes_depth", 4)
-            )
-        ]
-        return expand(
-            "figures/{design}/pca/pca_{intgroup}_{axes}_{ellipse}.png",
-            design=wildcards.design,
-            intgroup=[n for n in glob_wildcards(
-                os.path.join(intgroups, "Deseq2_{intgroup}.tsv")
-            ).intgroup if n != "Intercept"],
-            axes=axes_w,
-            elipse=["with_elipse", "with_elipse"]
-        )
-    except TypeError:
-        return [
-            png for png in Path(f"figures/{design}/pca/").iterdir()
-            if png.name.startswith("pca_") and png.name.endswith(".png")
-        ]
-
-
-
-
-def get_rdsd_targets(get_tximport: bool = False,
-                     get_deseq2: bool = False) -> Dict[str, Any]:
+def get_targets(get_deseq2 : bool = False,
+                get_pca_exp: bool = False,
+                get_figures: bool = False,
+                get_gseaapp: bool = False,
+                get_multiqc: bool = False) -> Dict[str, Any]:
     """
     This function retuans the targets of the snakefile
     according to the users requests
     """
+    # Initialize list of final targets
     targets = {}
+
+    # Remove unnecessary columns
     reserved = {"Sample_id", "Upstream_file",
                 "Downstream_file", "Salmon",
                 "Salmon_quant"}
-    if get_tximport is True:
-        targets["tximport"] = "tximport/txi.RDS"
 
-    if get_deseq2 is True:
+    # short cuts for further work
+    first_model = list(config["models"].keys())[0]
+    multiqc_flag = True  # False if missing input files
 
-        if config["params"].get("use_rlog", False) == True:
-            targets["rlog"] = expand(
-                "deseq2/{design}/rlog.tsv",
-                design=config["models"].keys()
-            )
-        else:
-            targets["vsd"] = expand(
-                "deseq2/{design}/VST.tsv",
-                design=config["models"].keys()
-            )
-
-        targets["gseapp"] = expand(
-            "GSEA/gsea.{design}.tar.bz2",
+    if add_target(config, "deseq2", get_deseq2):
+        # Add DESeq2 result files
+        targets["deseq2"] = expand(
+            "deseq2/{design}/Wald_{design}.RDS",
             design=config["models"].keys()
         )
 
-        targets["archive"] = expand(
-            "Results/{design}/Results_archive.tar.bz2",
-            design=config["models"].keys()
+    if add_target(config, "pca_explorer", get_pca_exp):
+        # Add pcaExplorer required files
+        targets["pca_explorer"] = expand(
+            "pcaExplorer/{design}/{object}_{design}.RDS",
+            design=config["models"].keys(),
+            object=["annotation", "limmago"]
         )
 
-        targets["pcaexplorer_annot"] = expand(
-            "pcaExplorer/{design}/annotation.RDS",
-            design=config["models"].keys()
-        )
-
-        targets["distro_expr"] = expand(
-            "figures/{design}/distro_expr.png",
-            design=config["models"].keys()
-        )
-
-        targets["pca_scree"] = expand(
-            "figures/{design}/pca_scree.png",
-            design=config["models"].keys()
-        )
-
-        targets["pca_corrs"] = expand(
-            "figures/{design}/pcacorrs.png",
-            design=config["models"].keys()
-        )
-
-        targets["pair_corr"] = expand(
-            "figures/{design}/pairwise_scatterplot_{design}.png",
-            design=config["models"].keys()
+        # Add reporting figures
+        targets["pca_explorer_figures"] = expand(
+            "figures/{design}/{figures}_{design}.png",
+            design=config["models"].keys(),
+            figures=["pca_scree", "distro_expr", "pcacorrs"]
         )
 
         targets["pca"] = expand(
             "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
             design=config["models"].keys(),
-            intgroup=get_intgroups(design, columns_to_drop=reserved, nest=1),
+            intgroup=get_groups(design, columns_to_drop=reserved, nest=1),
             axes=[
                 f"ax_{a}_ax_{b}"
-                for a, b in get_axes(
-                    max_axes=config["params"].get("max_axes", 4)
-                )
+                for a, b in get_axes(config["params"].get("pca_axes_depth", 4))
             ],
-            elipse=["with_elipse", "with_elipse"]
+            elipse=["with_elipse", "without_elipse"]
         )
 
-        targets["pcaExplorer_script"] = expand(
+        # Add pcaExplorer launch script for developper
+        targets["pca_explorer_scripts"] = expand(
             "pcaExplorer/{design}/pcaExplorer_launcher_{design}.R",
             design=config["models"].keys()
         )
+    else:
+        # If no pca-explorer is asked, then no multiqc will be produced
+        multiqc_flag = False
 
-        targets["clustermap_samples"] = expand(
-            "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
+    if add_target(config, "gseaapp", get_gseaapp):
+        targets["gseaapp"] = expand(
+            "GSEAapp/{design}/{design}_{content}.tsv",
             design=config["models"].keys(),
-            factor=get_intgroups(design, columns_to_drop=reserved, nest=1)
+            content=["complete", "padj_fc", "fc_fc"],
         )
 
-        if config.get("report", False):
-            targets["gsea"] = [
-                gsea_tsv(design)
-                for design in config["models"].keys()
-            ]
+    if add_target(config, "additional_figures", get_figures):
+        targets["enhancedVolcano"] = expand(
+            "figures/{design}/Volcano_{design}.png",
+            design=config["models"].keys()
+        )
 
-            targets["volcano_plots"] = [
-                volcano_png(design)
-                for design in config["models"].keys()
-            ]
+        targets["seaborn_clustermaps"] = expand(
+            "figures/{design}/sample_clustered_heatmap_{design}.png",
+            design=config["models"].keys()
+        )
+    else:
+        # If no additional figures are built, the no multiqc is produced
+        multiqc_flag = False
 
-            targets["maplots"] = [
-                maplot_png(design)
-                for design in config["models"].keys()
-            ]
+    if add_target(config, "multiqc", get_multiqc) and multiqc_flag:
+        targets["multiqc"] = expand(
+            "multiqc/{design}/multiqc_config.yaml",
+            design=config["models"].keys()
+        )
 
-            targets["multiqc"] = [
-                multiqc_reports(design)
-                for design in config["models"].keys()
-            ]
-
+    print(targets)
     return targets

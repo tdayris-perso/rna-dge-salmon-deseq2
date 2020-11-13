@@ -24,7 +24,7 @@ from pathlib import Path  # Paths related methods
 from snakemake.utils import makedirs  # Easily build directories
 from typing import Dict, Any  # Typing hints
 
-import common_script_rna_dge_salmon_deseq2
+import common_script_rna_dge_salmon_deseq2 as common
 
 
 def parser() -> argparse.ArgumentParser:
@@ -33,7 +33,7 @@ def parser() -> argparse.ArgumentParser:
     """
     main_parser = argparse.ArgumentParser(
         description=sys.modules[__name__].__doc__,
-        formatter_class=common_script_rna_dge_salmon_deseq2.CustomFormatter,
+        formatter_class=common.CustomFormatter,
         epilog="This script does not make any magic. Please check the prepared"
         " configuration file!",
     )
@@ -46,19 +46,17 @@ def parser() -> argparse.ArgumentParser:
     )
 
     main_parser.add_argument(
-        "--formulas",
-        help="space separated list of R formulas designed to build linear "
-        "model on your data (use simple commas to avoid bash expension)",
+        "--models",
+        help="A list of models. Each model is composed of [1] "
+             "a factor (a column name in your design, or a composition of "
+             "several columns separated by dots. See DESeq2 vignette.), "
+             "[2] a numerator (your tested condition), [3] a denominator "
+             "(your reference condition), and [4] a statistical formula. "
+             "These values are separated by commas. To include multiple "
+             "models, please separate them by spaces. "
+             "See details on rna-dge-salmon-deseq2 wiki.",
         nargs="+",
-        default=["~Condition"],
-    )
-
-    main_parser.add_argument(
-        "--model-name",
-        help="Space separated list of model names. Each of these name should "
-        "correspond to a single formula. Each name should be unique",
-        nargs="+",
-        default=["Condition_model"],
+        default=["Condition,B,A,~Condition"]
     )
 
     main_parser.add_argument(
@@ -110,26 +108,66 @@ def parser() -> argparse.ArgumentParser:
 
     main_parser.add_argument(
         "--alpha-threshold",
-        help="The alpha error threshold (default: %(default)s)",
+        help="The alpha error threshold. Warning: "
+             "fixing these thresholds here won't set the extra "
+             "parameters in DESeq2. It is used for plotting "
+             "convenience and table filters (default: %(default)s)",
         type=float,
         default=0.05,
     )
 
     main_parser.add_argument(
         "--fc-threshold",
-        help="The Fold Change significance threshold" " (default: %(default)s)",
+        help="The Fold Change significance threshold. Warning: "
+             "fixing these thresholds here won't set the extra "
+             "parameters in DESeq2. It is used for plotting "
+             "convenience and table filters (default: %(default)s)",
         type=float,
         default=1.0,
     )
 
-    main_parser.add_argument(
+    pipeline = main_parser.add_argument_group("Pipeline options")
+    pipeline.add_argument(
+        "--no-pca-explorer",
+        help="Do not run pcaExplorer. Warning: many quality control graphs "
+             "won't be included (pca, pca correlations, pca scree, pca "
+             "axes GO annotation). The multiqc report won't be created.",
+        action="store_true",
+        default=False
+    )
+    pipeline.add_argument(
+        "--no-gseaapp-files",
+        help="Do not produce gseaapp tsv files. Warning: these tables are "
+             "human-readable, annotated and filtered (see description in "
+             "the final report). No humand-readable DESeq2 results will be "
+             "available if this parameter is provided",
+        action="store_true",
+        default=False
+    )
+    pipeline.add_argument(
+        "--no-additional-figures",
+        help="Do not produce additional figures like Volcano plot, Clustered "
+             "heatmaps, or pairwise scatterplots. Warning: the multiqc report "
+             "will not be created.",
+        action="store_true",
+        default=False
+    )
+    pipeline.add_argument(
+        "--no-multiqc",
+        help="Do not produce multiqc report.",
+        action="store_true",
+        default=False
+    )
+
+    extra = main_parser.add_argument_group("Extra parameters")
+    extra.add_argument(
         "--copy-extra",
         help="Optional parameters for bash copy" " (default: %(default)s)",
         type=str,
         default="--verbose",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--tximport-extra",
         help="Optional parameters for tximport::tximport"
         " (default: %(default)s)",
@@ -137,65 +175,35 @@ def parser() -> argparse.ArgumentParser:
         default="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
     )
 
-    main_parser.add_argument(
-        "--deseq2-estimateSizeFactors-extra",
-        help="Extra parameters for estimateSizeFactors"
-        " (default: %(default)s)",
-        type=str,
-        default="type='ratio', quiet=FALSE",
-    )
-
-    main_parser.add_argument(
-        "--deseq2-estimateDispersions-extra",
-        help="Extra parameters for estimateDispersions"
-        " (default: %(default)s)",
-        type=str,
-        default="fitType='local', quiet=FALSE",
-    )
-
-    main_parser.add_argument(
-        "--deseq2-rlog-extra",
-        help="Extra parameters for rlog function" " (default: %(default)s)",
-        type=str,
-        default="blind=FALSE, fitType=NULL",
-    )
-
-    main_parser.add_argument(
-        "--deseq2-vst-extra",
-        help="Extra parameters for rlog function" " (default: %(default)s)",
-        type=str,
-        default="blind=FALSE, fitType=NULL",
-    )
-
-    main_parser.add_argument(
-        "--deseq2-nbinomWaldTest-extra",
-        help="Extra parameters for nbinomWaldTest" " (default: %(default)s)",
+    extra.add_argument(
+        "--deseq2-extra",
+        help="Extra parameters for DESeq2::DESeq2 (default: %(default)s)",
         type=str,
         default="quiet=FALSE",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--pcaexplorer-limmaquickpca2go-extra",
         help="Extra parameters for limma pca to go in pcaExplorer",
         type=str,
         default="organism = 'Hs'",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--pcaexplorer-distro-expr-extra",
         help="Extra parameters for pcaExplorer's expression distribution plot",
         type=str,
         default="plot_type='density'",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--pcaexplorer-scree-extra",
         help="Extra parameters for PCA scree in pcaExplorer",
         type=str,
         default="type='pev', pc_nr=10",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--pcaexplorer-pcacorrs-extra",
         help="Extra parameters for PCA axes correlations "
         "with experimental design",
@@ -203,22 +211,14 @@ def parser() -> argparse.ArgumentParser:
         default="pc=1",
     )
 
-    main_parser.add_argument(
+    extra.add_argument(
         "--pcaexplorer-pair-corr-extra",
         help="Extra parameters for PCA sample correlations",
         type=str,
         default="use_subset=TRUE, log=FALSE",
     )
 
-    main_parser.add_argument(
-        "--use-vst",
-        help="Use Variance Stabilized Transformation to normalize data, "
-        "instead of regularized log",
-        default=True,
-        action="store_true",
-    )
-
-    main_parser.add_argument(
+    extra.add_argument(
         "--pca-axes-depth",
         help="Maximum number of axes plotted in PCAs",
         default=2,
@@ -262,16 +262,15 @@ def test_parse_args() -> None:
         cold_storage=[' '],
         copy_extra='--verbose',
         debug=True,
-        deseq2_estimateDispersions_extra="fitType='local', quiet=FALSE",
-        deseq2_estimateSizeFactors_extra="type='ratio', quiet=FALSE",
-        deseq2_nbinomWaldTest_extra='quiet=FALSE',
-        deseq2_rlog_extra='blind=FALSE, fitType=NULL',
-        deseq2_vst_extra='blind=FALSE, fitType=NULL',
+        deseq2_extra='quiet=FALSE',
         design='design.tsv',
         fc_threshold=1.0,
-        formulas=['~Condition'],
         gtf='/path/to/file.gtf',
-        model_name=['Condition_model'],
+        models=['Condition,B,A,~Condition'],
+        no_additional_figures=False,
+        no_gseaapp_files=False,
+        no_multiqc=False,
+        no_pca_explorer=False,
         output='config.yaml',
         pca_axes_depth=2,
         pcaexplorer_distro_expr_extra="plot_type='density'",
@@ -283,7 +282,6 @@ def test_parse_args() -> None:
         singularity='docker://continuumio/miniconda3:4.4.10',
         threads=1,
         tximport_extra="type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
-        use_vst=True,
         workdir='.'
     )
     assert options == expected
@@ -293,6 +291,15 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
     """
     Build config dictionnary from parsed command line arguments
     """
+    models = {}
+    for model in args.models:
+        factor, numerator, denominator, formula = model.split(",")
+        models[f"{factor}_compairing_{numerator}_vs_{denominator}"] = {
+            "factor": factor,
+            "numerator": numerator,
+            "denominator": denominator,
+            "formula": formula
+        }
     result_dict = {
         "design": args.design,
         "config": args.output,
@@ -305,15 +312,17 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "alpha_threshold": args.alpha_threshold,
             "fc_threshold": args.fc_threshold,
         },
+        "pipeline": {
+            "deseq2": True,
+            "pca_explorer": not args.no_pca_explorer,
+            "gseaapp": not args.no_gseaapp_files,
+            "additional_figures": not args.no_additional_figures,
+            "multiqc": not args.no_multiqc
+        },
         "params": {
             "copy_extra": args.copy_extra,
             "tximport_extra": args.tximport_extra,
-            "DESeq2_estimateSizeFactors_extra": args.deseq2_estimateSizeFactors_extra,
-            "DESeq2_estimateDispersions_extra": args.deseq2_estimateDispersions_extra,
-            "DESeq2_rlog_extra": args.deseq2_rlog_extra,
-            "DESeq2_vst_extra": args.deseq2_vst_extra,
-            "DESeq2_nbinomWaldTest_extra": args.deseq2_nbinomWaldTest_extra,
-            "use_rlog": (not args.use_vst),
+            "DESeq2_extra": args.deseq2_extra,
             "limmaquickpca2go_extra": args.pcaexplorer_limmaquickpca2go_extra,
             "pcaexplorer_distro_expr": args.pcaexplorer_distro_expr_extra,
             "pcaexplorer_scree": args.pcaexplorer_scree_extra,
@@ -321,7 +330,7 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "pcaexplorer_pcacorrs": args.pcaexplorer_pcacorrs_extra,
             "pca_axes_depth": args.pca_axes_depth
         },
-        "models": dict(zip(args.model_name, args.formulas)),
+        "models": models,
     }
 
     logging.debug(result_dict)
@@ -344,12 +353,7 @@ def test_args_to_dict() -> None:
         "params": {
             "copy_extra": "--verbose",
             "tximport_extra": "type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE",
-            "DESeq2_estimateSizeFactors_extra": "type='ratio', quiet=FALSE",
-            "DESeq2_estimateDispersions_extra": "fitType='local', quiet=FALSE",
-            "DESeq2_rlog_extra": "blind=FALSE, fitType=NULL",
-            "DESeq2_vst_extra": "blind=FALSE, fitType=NULL",
-            "DESeq2_nbinomWaldTest_extra": "quiet=FALSE",
-            "use_rlog": False,
+            "DESeq2_extra": "quiet=FALSE",
             "limmaquickpca2go_extra": "organism = 'Hs'",
             "pcaexplorer_distro_expr": "plot_type='density'",
             "pcaexplorer_scree": "type='pev', pc_nr=10",
@@ -357,7 +361,21 @@ def test_args_to_dict() -> None:
             "pcaexplorer_pcacorrs": "pc=1",
             "pca_axes_depth": 2
         },
-        "models": {"Condition_model": "~Condition"},
+        "pipeline": {
+            "deseq2": True,
+            "pca_explorer": True,
+            "gseaapp": True,
+            "additional_figures": True,
+            "multiqc": True
+        },
+        "models": {
+            "Condition_compairing_B_vs_A": {
+                "factor": "Condition",
+                "numerator": "B",
+                "denominator": "A",
+                "formula": "~Condition"
+            }
+        }
     }
     tested = args_to_dict(parse(shlex.split("/path/to/file.gtf --debug ")))
     assert tested == expected
@@ -368,7 +386,7 @@ def main(args: argparse.ArgumentParser) -> None:
     Main function of the script
     """
     config_dict = args_to_dict(args)
-    common_script_rna_dge_salmon_deseq2.write_yaml(
+    common.write_yaml(
         Path(args.output),
         config_dict
     )

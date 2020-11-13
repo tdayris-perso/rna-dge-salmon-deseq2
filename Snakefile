@@ -23,6 +23,12 @@ include: "rules/enhancedVolcano.smk"
 
 rule all:
     input:
-        **get_rdsd_targets(get_deseq2 = True)
+        **get_targets(
+            get_deseq2 = True,
+            get_pca_exp = True,
+            get_figures = True,
+            get_gseaapp = True,
+            get_multiqc = True
+        )
     message:
         "Finishing the differential gene expression pipeline"

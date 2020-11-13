@@ -4,15 +4,16 @@ See: https://github.com/tdayris/snakemake-wrappers/tree/Unofficial/bio/enhancedV
 """
 rule volcanoplot:
     input:
-        deseq2_tsv = "deseq2/{design}/TSV/Deseq2_{intgroup}.tsv"
+        deseq2_tsv = "deseq2/{design}/DESeq2_{design}.tsv"
     output:
         png = report(
-            "figures/{design}/Volcano_{intgroup}.png",
+            "figures/{design}/Volcano_{design}.png",
             caption="../report/volcanoplot.rst",
-            category="Volcano plots"
+            category="5. Volcano plots",
+            subcategory="{design}"
         )
     message:
-        "Building volcano plot ({wildcards.design}, {wildcards.intgroup})"
+        "Building volcano plot considering {wildcards.design}"
     threads:
         1
     resources:
@@ -26,6 +27,6 @@ rule volcanoplot:
         alpha_threshold = config["thresholds"].get("alpha_threshold", 0.05),
         fc_threshold = config["thresholds"].get("fc_threshold", 1)
     log:
-        "logs/volcanoplot/volcano_{design}_{intgroup}.log"
+        "logs/volcanoplot/volcano_{design}.log"
     wrapper:
         f"{git}/bio/enhancedVolcano/volcano-deseq2"

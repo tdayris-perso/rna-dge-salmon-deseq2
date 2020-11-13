@@ -4,10 +4,10 @@ More information: https://github.com/tdayris/snakemake-wrappers/blob/Unofficial/
 """
 rule pcaexplorer_annot:
     input:
-        dds = "deseq2/{design}/dds.RDS",
-        tr2gene = "tximport/transcript_to_gene_id_to_gene_name.tsv"
+        dds = "deseq2/{design}/dds_{design}.RDS",
+        tr2gene = "tximport/tx_gid_gn.tsv"
     output:
-        annotation = "pcaExplorer/{design}/annotation.RDS"
+        annotation = "pcaExplorer/{design}/annotation_{design}.RDS"
     message:
         "Building annotation for pcaExplorer"
     threads:
@@ -33,14 +33,10 @@ More information: https://github.com/tdayris/snakemake-wrappers/blob/Unofficial/
 """
 rule limma_pca_to_go:
     input:
-        dds = "deseq2/{design}/dds.RDS",
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        )
+        dds = "deseq2/{design}/dds_{design}.RDS",
+        dst = "deseq2/{design}/dst_{design}.RDS"
     output:
-        limmago = "pcaExplorer/{design}/limmago.RDS"
+        limmago = "pcaExplorer/{design}/limmago_{design}.RDS"
     message:
         "Building GO-term enrichment based on PCA terms"
     threads:
@@ -71,16 +67,13 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule distro_expr:
     input:
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        )
+        dst = "deseq2/{design}/dst_{design}.RDS"
     output:
         png = report(
-            "figures/{design}/distro_expr.png",
+            "figures/{design}/distro_expr_{design}.png",
             caption="../report/distro_expr.rst",
-            category="Distribution of Expressions"
+            category="2. Distribution of Expressions",
+            subcategory="{design}"
         )
     message:
         "Building expression distribution plot for {wildcards.design}"
@@ -109,16 +102,13 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pca_scree:
     input:
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        )
+        dst = "deseq2/{design}/dst_{design}.RDS"
     output:
         png = report(
-            "figures/{design}/pca_scree.png",
+            "figures/{design}/pca_scree_{design}.png",
             caption="../report/pca_scree.rst",
-            category="PCA"
+            category="4. PCA",
+            subcategory="{design}"
         )
     message:
         "Building PCA scree for {wildcards.design}"
@@ -146,17 +136,14 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pcaexplorer_pcacorrs:
     input:
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        ),
-        dds = "deseq2/{design}/dds.RDS"
+        dst = "deseq2/{design}/dst_{design}.RDS",
+        dds = "deseq2/{design}/dds_{design}.RDS"
     output:
         png = report(
-            "figures/{design}/pcacorrs.png",
+            "figures/{design}/pcacorrs_{design}.png",
             caption="../report/pca_corr.rst",
-            category="PCA"
+            category="4. PCA",
+            subcategory="{design}"
         )
     message:
         "Building PCA correlations for {wildcards.design}"
@@ -185,16 +172,13 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pcaexplorer_pca:
     input:
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        )
+        dst = "deseq2/{design}/dst_{design}.RDS"
     output:
         png = report(
             "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png",
             caption="../report/pca.rst",
-            category="PCA"
+            category="4. PCA",
+            subcategory="{design}"
         )
     message:
         "Plotting PCA for {wildcards.design} ({wildcards.intgroup}:"
@@ -223,12 +207,13 @@ This rule produces a pairwise scatterplot between samples
 """
 rule pcaexplorer_pair_corr:
     input:
-        dst = "deseq2/{design}/Wald.RDS"
+        dst = "deseq2/{design}/dst_{design}.RDS"
     output:
         png = report(
             "figures/{design}/pairwise_scatterplot_{design}.png",
             caption="../report/pcaexplorer_pair_corr.rst",
-            category="Pairwise Scatterplot"
+            category="3. Sample relationships",
+            subcategory="{design}"
         )
     message:
         "Plotting pairwise scatterplot on {wildcards.design}"
@@ -242,7 +227,7 @@ rule pcaexplorer_pair_corr:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        extra = config["params"].get("pcaexplorer_pair_corr", "")
+        extra = config["params"].get("pcaexplorer_pair_corr", "pc=1")
     log:
         "logs/pcaexplorer/pairwise_scatterplot/{design}.log"
     wrapper:
@@ -251,14 +236,10 @@ rule pcaexplorer_pair_corr:
 
 rule pcaExplorer_write_script:
     input:
-        dds = "deseq2/{design}/dds.RDS",
-        dst = (
-            "deseq2/{design}/rlog.RDS"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.RDS"
-        ),
-        annotation = "pcaExplorer/{design}/annotation.RDS",
-        pca2go = "pcaExplorer/{design}/limmago.RDS",
+        dds = "deseq2/{design}/dds_{design}.RDS",
+        dst = "deseq2/{design}/dst_{design}.RDS",
+        annotation = "pcaExplorer/{design}/annotation_{design}.RDS",
+        pca2go = "pcaExplorer/{design}/limmago_{design}.RDS",
         coldata = "deseq2/filtered_design.tsv"
     output:
         script = "pcaExplorer/{design}/pcaExplorer_launcher_{design}.R"

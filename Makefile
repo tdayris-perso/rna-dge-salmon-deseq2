@@ -17,6 +17,7 @@ CONDA_ACTIVATE   = source $$(conda info --base)/etc/profile.d/conda.sh && conda 
 # Paths
 TEST_CONFIG      = scripts/prepare_config.py
 TEST_DESIGN      = scripts/prepare_design.py
+TEST_COMMON      = rules/common_rna_dge_salmon_deseq2.py
 SNAKE_FILE       = Snakefile
 ENV_YAML         = envs/workflow.yaml
 GTF_PATH         = '${PWD}/test/annotation.chr21.gtf'
@@ -36,7 +37,7 @@ default: all-unit-tests
 
 all-unit-tests:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} ${TEST_DESIGN}
+	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} ${TEST_DESIGN} ${TEST_COMMON}
 .PHONY: all-unit-tests
 
 
@@ -59,12 +60,19 @@ config-tests:
 design-tests:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTEST} ${PYTEST_ARGS} ${TEST_DESIGN} && \
-	${PYTHON} ${TEST_DESIGN} test/${READS_PATH} --output test/design.tsv
+	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output test/design.tsv
 .PHONY: design-tests
+
+
+common-tests:
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
+	${PYTEST} ${PYTEST_ARGS} ${TEST_COMMON}
+.PHONY: common-tests
+
 
 test-conda-report.html:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --model-name Complete  --formulas '~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
+	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --models 'Test,A,B,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --config "report=True" --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS} --configfile ${PWD}/test/config.yaml

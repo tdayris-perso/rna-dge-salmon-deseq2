@@ -1,22 +1,19 @@
 rule :
     input:
         pairwise_scatterplot = "figures/{design}/pairwise_scatterplot_{design}.png",
-        volcanoplot = "figures/{design}/Volcano_{intgroup}.png",
-        distro_expr = "figures/{design}/distro_expr.png",
-        ma_plot = "figures/{design}/plotMA/plotMA_{intgroup}.png",
-        pca_axes_correlation = "figures/{design}/pcacorrs.png"
+        volcanoplot = "figures/{design}/Volcano_{design}.png",
+        distro_expr = "figures/{design}/distro_expr_{design}.png",
+        pca_axes_correlation = "figures/{design}/pcacorrs_{design}.png"
     output:
-        multiqc_config = "multiqc/{design}_{intgroup}/multiqc_config.yaml",
+        multiqc_config = "multiqc/{design}/multiqc_config.yaml",
         plots = [
-            temp("multiqc/{design}_{intgroup}/pairwise_scatterplot_mqc.png"),
-            temp("multiqc/{design}_{intgroup}/volcanoplot_mqc.png"),
-            temp("multiqc/{design}_{intgroup}/distro_expr_mqc.png"),
-            temp("multiqc/{design}_{intgroup}/ma_plot_mqc.png"),
-            temp("multiqc/{design}_{intgroup}/pca_axes_correlation_mqc.png")
+            temp("multiqc/{design}pairwise_scatterplot_mqc.png"),
+            temp("multiqc/{design}volcanoplot_mqc.png"),
+            temp("multiqc/{design}distro_expr_mqc.png"),
+            temp("multiqc/{design}pca_axes_correlation_mqc.png")
         ]
     message:
         "Building MultiQC configuration for {wildcards.design}"
-        " ({wildcards.intgroup})"
     threads:
         1
     resources:
@@ -39,28 +36,28 @@ rule :
             {"Analysis Type": "Differential Gene Expression"}
         ]
     log:
-        "logs/multiqc/config_{design}_{intgroup}.log"
+        "logs/multiqc/config_{design}.log"
     wrapper:
         f"{git}/bio/BiGR/multiqc_rnaseq_report"
-        #"file:../../snakemake-wrappers/bio/BiGR/multiqc_rnaseq_report"
 
 
 rule multiqc:
     input:
-        multiqc_config = "multiqc/{design}_{intgroup}/multiqc_config.yaml",
+        multiqc_config = "multiqc/{design}/multiqc_config.yaml",
         plots = [
-            "multiqc/{design}_{intgroup}/pairwise_scatterplot_mqc.png",
-            "multiqc/{design}_{intgroup}/volcanoplot_mqc.png",
-            "multiqc/{design}_{intgroup}/distro_expr_mqc.png",
-            "multiqc/{design}_{intgroup}/ma_plot_mqc.png",
-            "multiqc/{design}_{intgroup}/pca_axes_correlation_mqc.png"
+            "multiqc/{design}/pairwise_scatterplot_mqc.png",
+            "multiqc/{design}/volcanoplot_mqc.png",
+            "multiqc/{design}/distro_expr_mqc.png",
+            "multiqc/{design}/ma_plot_mqc.png",
+            "multiqc/{design}/pca_axes_correlation_mqc.png"
         ],
         salmon = design.Salmon.tolist()
     output:
         report(
-            "multiqc/{design}_{intgroup}/report.html",
+            "multiqc/{design}/report.html",
             caption="../report/multiqc.rst",
-            category="DGE Results"
+            category="7. DGE Reports",
+            subcategory="{design}"
         )
     message:
         "Building quality report for {wildcards.design}"
@@ -74,8 +71,8 @@ rule multiqc:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        lambda w: f" --config multiqc/{w.design}_{w.intgroup}/multiqc_config.yaml "
+        lambda w: f" --config multiqc/{w.design}/multiqc_config.yaml "
     log:
-        "logs/multiqc/report/{design}_{intgroup}.log"
+        "logs/multiqc/report/{design}.log"
     wrapper:
         f"{git}/bio/multiqc"

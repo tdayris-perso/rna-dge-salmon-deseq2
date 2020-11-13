@@ -5,7 +5,11 @@ rule clean_coldata:
     input:
         design = config["design"]
     output:
-        tsv = "deseq2/filtered_design.tsv"
+        tsv = report(
+            "deseq2/filtered_design.tsv",
+            category="1. Experimental design",
+            caption="../report/exp_design.rst"
+        )
     message:
         "Filtering design to produce human readable reports"
     threads:
@@ -36,16 +40,13 @@ Plot clustered heatmap of samples among each others based on normalized counts
 """
 rule seaborn_clustermap:
     input:
-        counts = ((
-            "deseq2/{design}/rlog.tsv"
-            if config["params"].get("use_rlog", True) is True
-            else "deseq2/{design}/VST.tsv"
-        ))
+        counts = "deseq2/{design}/normalized_counts.tsv"
     output:
         png = report(
-            "figures/{design}/sample_clustered_heatmap/sample_clustered_heatmap_{factor}.png",
+            "figures/{design}/sample_clustered_heatmap_{design}.png",
             caption="../report/clustermap_sample.rst",
-            category="Clustered Heatmap"
+            category="3. Sample relationships",
+            subcategory="{design}"
         )
     message:
         "Building sample clustered heatmap on {wildcards.design}"
@@ -64,6 +65,6 @@ rule seaborn_clustermap:
         ylabel_rotation = 0,
         xlabel_rotation = 90
     log:
-        "logs/seaborn/clustermap/{design}_{factor}.log"
+        "logs/seaborn/clustermap/{design}.log"
     wrapper:
         f"{git}/bio/seaborn/clustermap"
