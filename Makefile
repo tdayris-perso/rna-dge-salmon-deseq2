@@ -72,7 +72,7 @@ common-tests:
 
 test-conda-report.html:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --models 'Test,A,B,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
+	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --models 'Condition,C1,C2,~Nest*Condition' 'Nest,N1,N2,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
 	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --config "report=True" --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS} --configfile ${PWD}/test/config.yaml
@@ -80,7 +80,8 @@ test-conda-report.html:
 
 clean:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output
+	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output && \
+	find . -type d -name ".snakemake" | while read SMKTMP; do rm -r "${SMKTMP}"; done
 .PHONY: clean
 
 

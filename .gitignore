@@ -7,7 +7,7 @@ logs/
 test/deseq2
 test/figures
 test/genomes
-test/GSEA
+test/GSEA*
 test/multiqc
 test/pcaExplorer
 test/Results
