@@ -1,24 +1,8 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
-description: Snakemake workflow for RNASeq read count
+description: Snakemake workflow for rna dge with DESeq2
 
 properties:
-  design:
-    type: string
-    description: Path to design file
-    default: design.tsv
-  workdir:
-    type: string
-    description: Path to working directory
-    default: .
-  threads:
-    type: integer
-    description: Maximum number of threads used
-    default: 1
-  singularity_docker_image:
-    type: string
-    description: Image used within Singularity
-    default: docker://continuumio/miniconda3:4.4.10
   cold_storage:
     type: array
     description: A list of path which are not open for intensive IO process
@@ -27,47 +11,101 @@ properties:
       type: string
     uniqueItems: true
     minItems: 1
-  rna_count_directory:
+  config:
     type: string
-    description: Path to the rna-count-salmon working directory
-    default: "rna-count-salmon-results"
+    description: Path to configuration file
+    default: config.yaml
+  design:
+    type: string
+    description: Path to design file
+    default: design.tsv
+  models:
+    type: object
+    description: List of medels, their conditions, factor and formula
+  singularity_docker_image:
+    type: string
+    description: Miniconda image
+    default: docker://continuumio/miniconda3:4.4.10
+  threads:
+    type: integer
+    description: Maximum number of threads used
+    default: 1
+  workdir:
+    type: string
+    description: Path to working directory
+    default: .
 
-ref:
-  type: object
-  proprerties:
-    fasta:
-      type: string
-      description: A path to a fasta-formatted genome sequence
-    gtf:
-      type: string
-      description: A path to a GTF formatted genome annotation (NO GFF)
-  required:
-    - fasta
 
 params:
-  type: object
-  description: Optional arguments for each rule
+  DESeq2_extra:
+    type: string
+    description: Optional parameters for DESeq2::DESeq2 function
+    default: quiet=FALSE
   copy_extra:
     type: string
-    description: Extra parameters for bash cp
-    default: "--verbose --update"
-  salmon_index_extra:
+    description: Extra parameters for bash copy
+    default: --verbose
+  limmaquickpca2go_extra:
     type: string
-    description: Extra parameters for salmon index rule
-    default: "--keepDuplicates --gencode --perfectHash"
-  salmon_quant_extra:
+    description: Optional parameters for pcaExplorer::limmaquickpca2go
+    default: organism = "Hs", pca_ngenes=100, loadings_ngenes=90
+  pca_axes_depth:
+    type: integer
+    description: Number of axes to plot in PCA
+    default: 2
+  pcaexplorer_distro_expr:
     type: string
-    description: Extra parameters for salmon quant rule
-    default: "--numBootstraps 100 --validateMappings --gcBias --seqBias"
-  library:
+    description: Optional parameters for pcaExplorer::distro_expr
+    default: plot_type='density'
+  pcaexplorer_pair_corr:
     type: string
-    description: "Library type as defined by Salmon"
-    default: "A"
+    description: Extra parameters for pcaExplorer pairwise correlation plot
+    default: use_subset=TRUE, log=FALSE
+  pcaexplorer_pcacorrs:
+    type: string
+    description: PCA axe on which to search for factor correlations
+    default: pc=1
+  pcaexplorer_scree:
+    type: string
+    description: Extra parameters for pcaExplorer pcascree
+    default: ype='pev', pc_nr=10
+  tximport_extra:
+    type: string
+    description: Extra parameters for tximport
+    default: type='salmon', ignoreTxVersion=TRUE, ignoreAfterBar=TRUE
 
-required:
-  - ref
-  - workdir
-  - threads
-  - singularity_docker_image
-  - design
-  - cold_storage
+pipeline:
+  additional_figures:
+    type: boolean
+    description: whether to plot additional figures or not
+    default: true
+  deseq2:
+    type: boolean
+    description: whether to run deseq2 controles
+    default: true
+  gseaapp:
+    type: boolean
+    description: whether to subset the results of DESeq2
+    default: true
+  multiqc:
+    type: boolean
+    description: whether to run multiqc or not
+    default: true
+  pca_explorer:
+    type: boolean
+    description: whether to run pcaExplorer or not
+    default: true
+ref:
+  gtf:
+    type: string
+    description: Path to a GTF file
+
+thresholds:
+  alpha_threshold:
+    type: float
+    description: Alpha risk thresholds in plots
+    default: 0.05
+  fc_threshold:
+    type: float
+    description: Fold change thresholds in plots
+    default: 1.0
