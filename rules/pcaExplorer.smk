@@ -34,7 +34,7 @@ More information: https://github.com/tdayris/snakemake-wrappers/blob/Unofficial/
 rule limma_pca_to_go:
     input:
         dds = "deseq2/{design}/dds_{design}.RDS",
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/Wald_{design}.RDS"
     output:
         limmago = "pcaExplorer/{design}/limmago_{design}.RDS"
     message:
@@ -67,7 +67,7 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule distro_expr:
     input:
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/Wald_{design}.RDS"
     output:
         png = report(
             "figures/{design}/distro_expr_{design}.png",
@@ -102,7 +102,7 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pca_scree:
     input:
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/Wald_{design}.RDS"
     output:
         png = report(
             "figures/{design}/pca_scree_{design}.png",
@@ -136,7 +136,7 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pcaexplorer_pcacorrs:
     input:
-        dst = "deseq2/{design}/dst_{design}.RDS",
+        dst = "deseq2/{design}/Wald_{design}.RDS",
         dds = "deseq2/{design}/dds_{design}.RDS"
     output:
         png = report(
@@ -172,7 +172,7 @@ More information at: https://github.com/tdayris/snakemake-wrappers/blob/Unoffici
 """
 rule pcaexplorer_pca:
     input:
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/Wald_{design}.RDS"
     output:
         png = report(
             "figures/{design}/pca/pca_{intgroup}_ax_{a}_ax_{b}_{elipse}.png",
@@ -207,7 +207,7 @@ This rule produces a pairwise scatterplot between samples
 """
 rule pcaexplorer_pair_corr:
     input:
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/Wald_{design}.RDS"
     output:
         png = report(
             "figures/{design}/pairwise_scatterplot_{design}.png",
@@ -237,7 +237,7 @@ rule pcaexplorer_pair_corr:
 rule pcaExplorer_write_script:
     input:
         dds = "deseq2/{design}/dds_{design}.RDS",
-        dst = "deseq2/{design}/dst_{design}.RDS",
+        dst = "deseq2/{design}/Wald_{design}.RDS",
         annotation = "pcaExplorer/{design}/annotation_{design}.RDS",
         pca2go = "pcaExplorer/{design}/limmago_{design}.RDS",
         coldata = "deseq2/filtered_design.tsv"

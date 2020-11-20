@@ -7,10 +7,10 @@ rule :
     output:
         multiqc_config = "multiqc/{design}/multiqc_config.yaml",
         plots = [
-            temp("multiqc/{design}pairwise_scatterplot_mqc.png"),
-            temp("multiqc/{design}volcanoplot_mqc.png"),
-            temp("multiqc/{design}distro_expr_mqc.png"),
-            temp("multiqc/{design}pca_axes_correlation_mqc.png")
+            temp("multiqc/{design}/pairwise_scatterplot_mqc.png"),
+            temp("multiqc/{design}/volcanoplot_mqc.png"),
+            temp("multiqc/{design}/distro_expr_mqc.png"),
+            temp("multiqc/{design}/pca_axes_correlation_mqc.png")
         ]
     message:
         "Building MultiQC configuration for {wildcards.design}"

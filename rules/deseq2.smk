@@ -10,8 +10,7 @@ rule DESeqDatasetFromTximport:
         dds = temp("deseq2/{design}/dds_{design}.RDS")
     message:
         "Building DESeq2 dataset from tximport on {wildcards.design}. "
-        "Factor: {params.factor}, Tested: {params.numerator} "
-        "Reference: {params.denominator}, Formula: {params.formula}"
+        "Tested: {params.levels} (first is reference), Formula: {params.design}"
     threads:
         1
     resources:
@@ -29,6 +28,7 @@ rule DESeqDatasetFromTximport:
             config["models"][wildcards.design]["denominator"],
             config["models"][wildcards.design]["numerator"]
         ],
+        factor = lambda wildcards: config["models"][wildcards.design]["factor"],
         count_filter = min(len(design.Sample_id.tolist()), 10)
     log:
         "logs/deseq2/DESeqDatasetFromTximport/{design}.log"

@@ -43,7 +43,7 @@ rule tx2gene:
         tx2gene_small = temp("tximport/tx_tab_gene.tsv"),
         tx2gene = temp("tximport/tx_gid_gn.tsv"),
         tx2gene_large = temp("tximport/tx2gene_with_position.tsv"),
-        gene2gene = temp("tximport/gene2gene.tsv")
+        gene2gene_large = temp("tximport/gene2gene.tsv")
     message:
         "Building transcript to gene table for Tximport"
     threads:

@@ -60,8 +60,13 @@ rule seaborn_clustermap:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        conditions = lambda wildcards: dict(zip(design.Sample_id, design[wildcards.factor])),
-        factor = lambda wildcards: wildcards.factor,
+        conditions = lambda wildcards: dict(
+            zip(
+                design.Sample_id,
+                design[str(wildcards.design).split("_compairing_")[0]]
+            )
+        ),
+        factor = lambda wildcards: str(wildcards.design).split("_compairing_")[0],
         ylabel_rotation = 0,
         xlabel_rotation = 90
     log:
