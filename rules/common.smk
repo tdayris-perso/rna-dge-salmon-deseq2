@@ -20,8 +20,8 @@ from common_rna_dge_salmon_deseq2 import *
 # Snakemake-Wrappers version
 wrapper_version = "https://raw.githubusercontent.com/snakemake/snakemake-wrappers/0.67.0"
 # github prefix
-#git = "https://raw.githubusercontent.com/tdayris/snakemake-wrappers/"
-git = "file:/home/tdayris/Documents/Developments/snakemake-wrappers/"
+git = "https://raw.githubusercontent.com/tdayris/snakemake-wrappers/"
+#git = "file:/home/tdayris/Documents/Developments/snakemake-wrappers/"
 
 # Loading configuration
 if config == dict():
@@ -145,5 +145,4 @@ def get_targets(get_deseq2 : bool = False,
             design=config["models"].keys()
         )
 
-    print(targets)
     return targets
