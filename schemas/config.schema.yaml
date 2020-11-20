@@ -109,3 +109,17 @@ thresholds:
     type: float
     description: Fold change thresholds in plots
     default: 1.0
+
+
+required:
+  - cold_storage
+  - config
+  - design
+  - models
+  - singularity_docker_image
+  - threads
+  - workdir
+  - ref
+  - thresholds
+  - params
+  - pipeline
