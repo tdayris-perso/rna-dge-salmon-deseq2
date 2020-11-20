@@ -80,8 +80,7 @@ test-conda-report.html:
 
 clean:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output && \
-	find . -type d -name ".snakemake" | while read SMKTMP; do rm -r "${SMKTMP}"; done
+	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml --delete-all-output
 .PHONY: clean
 
 
