@@ -39,6 +39,6 @@ jobs:
       - name: Scripts unit-testing
         run: make all-unit-tests
       - name: Run Snakemake Workflow
-        run: make test-conda-report.html
+        run: test-cli-wrapper-report.html
       - name: Clean
         run: make clean

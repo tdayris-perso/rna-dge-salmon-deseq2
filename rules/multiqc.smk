@@ -1,4 +1,4 @@
-rule :
+rule prepare_multiqc:
     input:
         pairwise_scatterplot = "figures/{design}/pairwise_scatterplot_{design}.png",
         volcanoplot = "figures/{design}/Volcano_{design}.png",
