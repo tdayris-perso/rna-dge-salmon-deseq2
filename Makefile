@@ -23,6 +23,11 @@ ENV_YAML         = envs/workflow.yaml
 GTF_PATH         = '${PWD}/test/annotation.chr21.gtf'
 READS_PATH       = '${PWD}/test/pseudo_mapping'
 
+RUN_CONFIG       = ${PYTHON} rna-dge-salmon-deseq2.py config
+RUN_DESIGN       = ${PYTHON} rna-dge-salmon-deseq2.py design
+RUN_SKMAKE       = ${PYTHON} rna-dge-salmon-deseq2.py snakemake
+RUN_REPORT       = ${PYTHON} rna-dge-salmon-deseq2.py report
+
 # Arguments
 ENV_NAME         = rna-dge-salmon-deseq2
 SNAKE_THREADS    = 1
@@ -53,14 +58,14 @@ conda-tests:
 config-tests:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} && \
-	${PYTHON} ${TEST_CONFIG} test/${GTF_PATH} --output test/config.yaml
+	${RUN_CONFIG} test/${GTF_PATH} --output test/config.yaml
 .PHONY: config-tests
 
 
 design-tests:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTEST} ${PYTEST_ARGS} ${TEST_DESIGN} && \
-	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output test/design.tsv
+	${RUN_DESIGN} ${READS_PATH} --output test/design.tsv
 .PHONY: design-tests
 
 
@@ -70,12 +75,22 @@ common-tests:
 .PHONY: common-tests
 
 
-test-conda-report.html:
+test-cli-wrapper-report.html:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${PYTHON} ${TEST_CONFIG} ${GTF_PATH}  --models 'Condition,C1,C2,~Nest*Condition' 'Nest,N1,N2,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
-	${PYTHON} ${TEST_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
-	${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
-	${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --config "report=True" --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS} --configfile ${PWD}/test/config.yaml
+	declare -x SNAKEMAKE_OUTPUT_CACHE="${PWD}/test/snakemake/cache" && \
+	declare -x SNAKEFILE="${PWD}/Snakefile" && \
+	declare -x PROFILE="${PWD}/.igr/profile/local" && \
+	declare -x PREPARE_CONFIG="${PWD}/scripts/prepare_config.py" && \
+	declare -x PREPARE_DESIGN="${PWD}/scripts/prepare_design.py" && \
+	declare -x GTF="${PWD}/test/genomes/annotation.chr21.gtf" && \
+	declare -x DGE_LAUNCHER="${PWD}/rna-dge-salmon-deseq2.py" && \
+	export SNAKEMAKE_OUTPUT_CACHE SNAKEFILE PROFILE PREPARE_CONFIG PREPARE_DESIGN GTF DGE_LAUNCHER && \
+	${RUN_CONFIG} ${GTF_PATH}  --models 'Condition,C1,C2,~Nest*Condition' 'Nest,N1,N2,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
+	${RUN_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
+	${RUN_SKMAKE} --snakemake-args "--configfile ${PWD}/test/config.yaml" && \
+	${RUN_REPORT} --snakemake-args "--configfile ${PWD}/test/config.yaml"
+	#${SNAKEMAKE} -s ${SNAKE_FILE} --use-conda -j ${SNAKE_THREADS} --printshellcmds --reason --forceall --directory ${PWD}/test --configfile ${PWD}/test/config.yaml && \
+	#${SNAKEMAKE} -s ${SNAKE_FILE} --report test-conda-report.html --config "report=True" --directory ${PWD}/test --forceall --printshellcmds --reason --use-conda -j ${SNAKE_THREADS} --configfile ${PWD}/test/config.yaml
 
 
 clean:

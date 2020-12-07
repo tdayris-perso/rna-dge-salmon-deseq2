@@ -22,11 +22,11 @@ dependencies:
   - conda-forge::black=20.8b1
   - conda-forge::singularity=3.5.3
 variables:
-  PIPELINE_PREFIX: "."
-  SNAKEMAKE_OUTPUT_CACHE: "snakemake/cache"
-  PROFILE: ".igr/profile/local"
-  SNAKEFILE: "Snakefile"
-  PREPARE_CONFIG: scripts/prepare_config.py"
-  PREPARE_DESIGN: "scripts/prepare_design.py"
-  GTF: "test/genomes/annotation.chr21.gtf"
-  DGE_LAUNCHER: "rna-dge-salmon-deseq2.py"
+  PIPELINE_PREFIX: "/home/tdayris/Documents/Developments/rna-dge-salmon-deseq2"
+  SNAKEMAKE_OUTPUT_CACHE: "/home/tdayris/snakemake/cache"
+  PROFILE: "/home/tdayris/.config/snakemake/slurm"
+  SNAKEFILE: "/home/tdayris/Documents/Developments/rna-dge-salmon-deseq2/Snakefile"
+  PREPARE_CONFIG: "/home/tdayris/Documents/Developments/rna-dge-salmon-deseq2/scripts/prepare_config.py"
+  PREPARE_DESIGN: "/home/tdayris/Documents/Developments/rna-dge-salmon-deseq2/scripts/prepare_design.py"
+  DGE_LAUNCHER: "/home/tdayris/Documents/Developments/rna-dge-salmon-deseq2/rna-dge-salmon-deseq2.py"
+  GTF: ""

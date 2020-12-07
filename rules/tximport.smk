@@ -50,13 +50,14 @@ rule tx2gene:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 512, 1024)
+            lambda wildcards, attempt: min(attempt * 2048, 4096)
         ),
         time_min = (
             lambda wildcards, attempt: min(attempt * 10, 20)
         )
     group:
         "tx2gene"
+    cache: True
     params:
         gencode = True,
         header = True,

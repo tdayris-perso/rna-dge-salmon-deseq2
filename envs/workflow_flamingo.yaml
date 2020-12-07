@@ -1,0 +1,32 @@
+---
+name: rna-dge-salmon-deseq2
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - conda-forge::python=3.8.5
+  - conda-forge::pytest=6.1.2
+  - conda-forge::datrie=0.8.2
+  - conda-forge::git=2.29.2
+  - conda-forge::jinja2=2.11.2
+  - conda-forge::pygraphviz=1.6
+  - conda-forge::flask=1.1.2
+  - conda-forge::pandas=1.1.4
+  - conda-forge::zlib=1.2.11
+  - conda-forge::openssl=1.1.1h
+  - conda-forge::networkx=2.5
+  - bioconda::snakemake=5.30.1
+  - conda-forge::ipython=7.19.0
+  - conda-forge::bashlex=0.15
+  - conda-forge::black=20.8b1
+  - conda-forge::singularity=3.5.3
+variables:
+  PIPELINE_PREFIX: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2"
+  SNAKEMAKE_OUTPUT_CACHE: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/cache"
+  PROFILE: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/.igr/profile/slurm"
+  SNAKEFILE: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/Snakefile"
+  PREPARE_CONFIG: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/scripts/prepare_config.py"
+  PREPARE_DESIGN: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/scripts/prepare_design.py"
+  DGE_LAUNCHER: "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/rna-dge-salmon-deseq2.py"
+  GTF: "/mnt/beegfs/database/bioinfo/Index_DB/GTF/Gencode/GRCH38/release_34/gencode.v34.annotation.gtf"
