@@ -85,7 +85,7 @@ test-cli-wrapper-report.html:
 	declare -x GTF="${PWD}/test/genomes/annotation.chr21.gtf" && \
 	declare -x DGE_LAUNCHER="${PWD}/rna-dge-salmon-deseq2.py" && \
 	export SNAKEMAKE_OUTPUT_CACHE SNAKEFILE PROFILE PREPARE_CONFIG PREPARE_DESIGN GTF DGE_LAUNCHER && \
-	mkdir -p "${SNAKEMAKE_OUTPUT_CACHE}" && \
+	mkdir -p "test/snakemake/cache" && \
 	${RUN_CONFIG} ${GTF_PATH}  --models 'Condition,C1,C2,~Nest*Condition' 'Nest,N1,N2,~Nest*Condition' --output ${PWD}/test/config.yaml --debug --design ${PWD}/test/design.tsv --pcaexplorer-limmaquickpca2go-extra ${LIMMA_ARGS} --pcaexplorer-pcacorrs-extra ${PCA_CORRS_ARGS} && \
 	${RUN_DESIGN} ${READS_PATH} --output ${PWD}/test/design.tsv --debug --import design.tsv && \
 	${RUN_SKMAKE} --snakemake-args "--configfile ${PWD}/test/config.yaml --directory test" && \
