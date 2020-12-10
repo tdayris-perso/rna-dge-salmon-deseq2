@@ -50,7 +50,7 @@ rule tx2gene:
         1
     resources:
         mem_mb = (
-            lambda wildcards, attempt: min(attempt * 2048, 4096)
+            lambda wildcards, attempt: attempt * 1024 * 4
         ),
         time_min = (
             lambda wildcards, attempt: min(attempt * 10, 20)
