@@ -68,9 +68,15 @@ def get_targets(get_deseq2 : bool = False,
     targets = {}
 
     # Remove unnecessary columns
-    reserved = {"Sample_id", "Upstream_file",
-                "Downstream_file", "Salmon",
-                "Salmon_quant"}
+    reserved = {
+        "Sample_id",
+        "Upstream_file",
+        "Downstream_file",
+        "Salmon",
+        "Salmon_quant",
+        "Unconcatenated_fq_R1_files",
+        "Unconcatenated_fq_R2_files"
+    }
 
     # short cuts for further work
     first_model = list(config["models"].keys())[0]
