@@ -82,7 +82,7 @@ test-cli-wrapper-report.html:
 	declare -x PROFILE="${PWD}/.igr/profile/local" && \
 	declare -x PREPARE_CONFIG="${PWD}/scripts/prepare_config.py" && \
 	declare -x PREPARE_DESIGN="${PWD}/scripts/prepare_design.py" && \
-	declare -x GTF="${PWD}/test/genomes/annotation.chr21.gtf" && \
+	declare -x GTF="${PWD}/test/annotation.chr21.gtf" && \
 	declare -x DGE_LAUNCHER="${PWD}/rna-dge-salmon-deseq2.py" && \
 	export SNAKEMAKE_OUTPUT_CACHE SNAKEFILE PROFILE PREPARE_CONFIG PREPARE_DESIGN GTF DGE_LAUNCHER && \
 	mkdir -p "test/snakemake/cache" && \
