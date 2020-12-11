@@ -4,11 +4,9 @@
 
 """
 This is the CLI launcher of the rna-dge-salmon-deseq2 pipeline. This pipeline
-is powered by Snakemake and uses Salmon and FastQC on raw fastq files, then
-MultiQC on the results to aggregate quality reports.
-
-You will have quantified reads over both transcriptomic and genomic regions,
-alongside with complete quality reports.
+is powered by Snakemake and uses tximport and DESeq2 to perform a differential
+gene espression, then pcaExplorer and in-house scripts to produce additional
+graphs.
 
 Please be aware that a Snakemake report is available for more details on
 both results and methods.
