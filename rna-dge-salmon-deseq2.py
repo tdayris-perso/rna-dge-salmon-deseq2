@@ -200,7 +200,7 @@ def snakemake_command(opt: str = "",
         "snakemake",
         f"-s {os.getenv('SNAKEFILE')}",
         f"--profile {os.getenv('PROFILE')}" if use_profile is True else "",
-        "--report Quantification_Report.html" if make_report is True else "",
+        "--report Differential_Gene_Expression.html" if make_report is True else "",
         "--cache tr2gene" if use_cache is True else "",
         opt
     ]
