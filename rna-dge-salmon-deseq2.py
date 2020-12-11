@@ -91,8 +91,8 @@ def parser() -> argparse.ArgumentParser:
         default=False
     )
     snake.add_argument(
-        "--no-cache",
-        help="Do not use the shared cache that allows user not to re-run "
+        "--cache",
+        help="Use the shared cache that allows user not to re-run "
              "indexation steps. Not using cache will slow down your analysis "
              "and use disk space for duplicated data.",
         action="store_true",
@@ -121,8 +121,8 @@ def parser() -> argparse.ArgumentParser:
         default=False
     )
     report_parser.add_argument(
-        "--no-cache",
-        help="Do not use the shared cache that allows user not to re-run "
+        "--cache",
+        help="Use the shared cache that allows user not to re-run "
              "indexation steps. Not using cache will slow down your analysis "
              "and use disk space for duplicated data.",
         action="store_true",
@@ -222,7 +222,7 @@ def snakemake_run(cmd_line_args) -> None:
         opt=cmd_line_args.snakemake_args,
         use_profile=not cmd_line_args.no_profile,
         make_report=False,
-        use_cache=not cmd_line_args.no_cache
+        use_cache=cmd_line_args.cache
     )
 
     run_cmd(*command)
@@ -236,7 +236,7 @@ def report(cmd_line_args) -> None:
         opt=cmd_line_args.snakemake_args,
         use_profile=not cmd_line_args.no_profile,
         make_report=True,
-        use_cache=not cmd_line_args.no_cache
+        use_cache=cmd_line_args.cache
     )
 
     run_cmd(*command)
