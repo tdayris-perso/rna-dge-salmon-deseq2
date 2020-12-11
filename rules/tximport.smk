@@ -53,7 +53,7 @@ rule tx2gene:
             lambda wildcards, attempt: attempt * 1024 * 4
         ),
         time_min = (
-            lambda wildcards, attempt: min(attempt * 10, 20)
+            lambda wildcards, attempt: attempt * 10
         )
     group:
         "tx2gene"
