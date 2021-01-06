@@ -204,14 +204,6 @@ def snakemake_command(opt: str = "",
     ]
 
 
-def run_cmd(*cmd_line) -> None:
-    """
-    Run a provided command line
-    """
-    cmd_line = " ".join(cmd_line)
-    print(cmd_line)
-    shell(cmd_line)
-
 def snakemake_run(cmd_line_args) -> None:
     """
     Call snakemake itself
@@ -244,29 +236,37 @@ def igr_run(cmd_line_args) -> None:
     """
     Call this pipeline whole pipeline with default arguments
     """
-    config_cmd = [
-        "python3",
-        os.getenv('DGE_LAUNCHER'),
-        "config",
-        os.getenv('GTF'),
-        "--models",
-        *cmd_line_args.models_to_analyse,
-        "--threads 20",
-        "--debug",
-        "--cold-storage /mnt/isilon /mnt/archivage",
-    ]
-    run_cmd(*config_cmd)
+    config_path = "config.yaml"
+    if not os.path.exists(config_path):
+        config_cmd = [
+            "python3",
+            os.getenv('DGE_LAUNCHER'),
+            "config",
+            os.getenv('GTF'),
+            "--models",
+            *cmd_line_args.models_to_analyse,
+            "--threads 20",
+            "--debug",
+            "--cold-storage /mnt/isilon /mnt/archivage",
+        ]
+        run_cmd(*config_cmd)
+    else:
+        print("config.yaml already exists, it was *not* overwritten.")
 
-    design_cmd = [
-        "python3",
-        os.getenv('DGE_LAUNCHER'),
-        "design",
-        cmd_line_args.salmon_dir,
-        "--import-design",
-        cmd_line_args.experimental_design,
-        "--debug"
-    ]
-    run_cmd(*design_cmd)
+    design_path = "design.tsv"
+    if not os.path.exists(design_path):
+        design_cmd = [
+            "python3",
+            os.getenv('DGE_LAUNCHER'),
+            "design",
+            cmd_line_args.salmon_dir,
+            "--import-design",
+            cmd_line_args.experimental_design,
+            "--debug"
+        ]
+        run_cmd(*design_cmd)
+    else:
+        print("design.tsv already exists, it was *not* overwritten.")
 
     snakemake_cmd = [
         "python3",
@@ -305,7 +305,7 @@ def check_env() -> bool:
         os.getenv("DGE_LAUNCHER"),
         os.getenv("GTF")
     ]
-    print(expected)
+
     test_if_none = all(var is not None for var in expected)
     test_if_exists = all(os.path.exists(path) for path in expected)
 
