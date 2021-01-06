@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euic
+set -eu
 
 # This function only changes echo headers
 # for user's sake.
@@ -48,12 +48,16 @@ function help_message() {
   message DOC "rna-dge-salmon-deseq2 I'm very proud to be your script today,"
   message DOC "and I hope you'll enjoy working with me."
   echo ""
+  message DOC "Please note that I am only intended to run on IGR's Flamingo."
+  message DOC "If you are not currently on IGR's Flamingo, please follow "
+  message DOC "manual instructions on Github's wiki pages."
+  echo ""
   message DOC "Every time you'll see a line starting with '@', "
   message DOC "it will be because I speak."
   message DOC "In fact, I always start my speech with :"
   message DOC "'\033[0;33m@DOC:\033[0m' when i't about my functions,"
   message DOC "'\033[1;36m@INFO:\033[0m' when it's about my intentions, "
-  message DOC "'\033[41m@ERROR:\033[0m', I tell you when things go wrong."
+  message DOC "'\033[41m@ERROR:\033[0m', when I tell you weather things went wrong."
   echo ""
   message DOC "I understand very fiew things, and here they are:"
   message DOC "-h | --help        Print this help message, then exit."
@@ -74,7 +78,34 @@ function help_message() {
   exit 0
 }
 
-[[ $# -gt 0 ]] && help_message
+DESIGN_PATH="exp-design.tsv"
+MODELS='Condtion,B,A,~Condition'
+QUANT_DIR="${PWD}"
+CONDA_YAML="/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/envs/workflow_flamingo.yaml"
+
+while [[ $# -gt 0 ]]; do
+  case "${1}" in
+    -h|--help)
+    help_message
+    ;;
+    -i|--exp-design)
+    DESIGN_PATH="${2}"
+    shift 2
+    ;;
+    -m|--models)
+    MODELS="${2}"
+    shift 2
+    ;;
+    -s|--salmon)
+    QUANT_DIR="${2}"
+    shift 2
+    ;;
+    *)
+    error_handling ${LINENO} 1 "Unknown argument ${1}"
+    shift
+    ;;
+  esac
+done
 
 # Loading conda
 message INFO "Sourcing conda for users who did not source it before."
@@ -82,7 +113,7 @@ source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate || exit e
 
 # Install conda environment if not installed before
 message INFO "Installing environment if and only if this action is needed."
-$(conda info --envs | grep "rna-dge-salmon-deseq2" > "/dev/null") && message INFO "Pipeline already installed! What a chance!" || conda env create --force -f "/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/envs/workflow_flamingo.yaml"
+$(conda info --envs | grep "rna-dge-salmon-deseq2" > "/dev/null" && conda compare -n rna-dge-salmon-deseq2 "${CONDA_YAML}") &&  message INFO "Pipeline already installed! What a chance!" || conda env create --force -f "${CONDA_YAML}"
 
 # Check on environment variables: if env are missing
 message INFO "Loading 'rna-dge-salmon-deseq2' environment"
@@ -90,4 +121,4 @@ conda activate rna-dge-salmon-deseq2 || error_handling "${LINENO}" 2 "Could not 
 
 # then installation process did not work properly
 echo INFO "Running pipeline if and only if it is possible"
-$(export -p | grep "RNA_COUNT_LAUNCHER" --quiet) && python3 ${RNA_COUNT_LAUNCHER} flamingo || error_handling ${LINENO} 3 "Could not locate rna-dge-salmon-deseq2 launcher at: ${RNA_COUNT_LAUNCHER}"
+$(export -p | grep "DGE_LAUNCHER" --quiet) && python3 ${DGE_LAUNCHER} flamingo --experimental-design "${DESIGN_PATH}" --salmon-dir "${QUANT_DIR}" --models-to-analyse ${MODELS} || error_handling ${LINENO} 3 "Could not locate rna-dge-salmon-deseq2 launcher at: ${DGE_LAUNCHER}"
