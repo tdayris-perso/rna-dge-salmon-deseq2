@@ -36,14 +36,24 @@ PYTEST_ARGS      = -vv
 # Parameters
 LIMMA_ARGS       = 'organism = "Hs", pca_ngenes=100, loadings_ngenes=90'
 PCA_CORRS_ARGS   = 'pc=1'
+
 # Recipes
 default: all-unit-tests
 
 
-all-unit-tests:
-	${CONDA_ACTIVATE} ${ENV_NAME} && \
-	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} ${TEST_DESIGN} ${TEST_COMMON}
-.PHONY: all-unit-tests
+# Installation
+conda-install-flamingo:
+	${CONDA_ACTIVATE} base && \
+	${CONDA} env create --file ${ENV_FLAMINGO} --force && \
+	${CONDA} activate ${ENV_NAME}
+.PHONY: conda-tests
+
+
+conda-install-local:
+	${CONDA_ACTIVATE} base && \
+	${CONDA} env create --file ${ENV_LOCAL} --force && \
+	${CONDA} activate ${ENV_NAME}
+.PHONY: conda-tests
 
 
 # Environment building through conda
@@ -54,7 +64,13 @@ conda-tests:
 .PHONY: conda-tests
 
 
-# Running tests on configuration only
+# Running script tests
+all-unit-tests:
+	${CONDA_ACTIVATE} ${ENV_NAME} && \
+	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} ${TEST_DESIGN} ${TEST_COMMON}
+.PHONY: all-unit-tests
+
+
 config-tests:
 	${CONDA_ACTIVATE} ${ENV_NAME} && \
 	${PYTEST} ${PYTEST_ARGS} ${TEST_CONFIG} && \
