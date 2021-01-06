@@ -14,3 +14,5 @@ test/Results
 test/tximport
 test/sample_clustered_heatmap
 test/*.html
+test/snakemake
+test/my_dds.RDS
