@@ -20,6 +20,8 @@ TEST_DESIGN      = scripts/prepare_design.py
 TEST_COMMON      = rules/common_rna_dge_salmon_deseq2.py
 SNAKE_FILE       = Snakefile
 ENV_YAML         = envs/workflow.yaml
+ENV_FLAMINGO     = envs/workflow_flamingo.yaml
+ENV_LOCAL        = envs/workflow_local.yaml
 GTF_PATH         = '${PWD}/test/annotation.chr21.gtf'
 READS_PATH       = '${PWD}/test/pseudo_mapping'
 
