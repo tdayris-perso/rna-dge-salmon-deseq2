@@ -48,14 +48,14 @@ conda-install-flamingo:
 	${CONDA_ACTIVATE} base && \
 	${CONDA} env create --file ${ENV_FLAMINGO} --force && \
 	${CONDA} activate ${ENV_NAME}
-.PHONY: conda-tests
+.PHONY: conda-install-flamingo
 
 
 conda-install-local:
 	${CONDA_ACTIVATE} base && \
 	${CONDA} env create --file ${ENV_LOCAL} --force && \
 	${CONDA} activate ${ENV_NAME}
-.PHONY: conda-tests
+.PHONY: conda-install-local
 
 
 # Environment building through conda
