@@ -107,17 +107,20 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+CONDA='conda'
+CONDA_VERSION="$(conda --version)"
+CONDA_ENV="/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/env"
+[ "${CONDA_VERSION:?}" = "conda 4.9.2" ] || message WARNING "Your version of conda might not be up to date. Trying anyway with the rest of the pipeline."
+which mamba > /dev/null 2>&1 && CONDA="mamba" || message WARNING "Mamba not found, falling back to conda."
+
 # Loading conda
 message INFO "Sourcing conda for users who did not source it before."
 source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate || exit error_handling "${LINENO}" 1 "Could not source conda environment."
 
-# Install conda environment if not installed before
-message INFO "Installing environment if and only if this action is needed."
-$(conda info --envs | grep "rna-dge-salmon-deseq2" > "/dev/null" && conda compare -n rna-dge-salmon-deseq2 "${CONDA_YAML}") &&  message INFO "Pipeline already installed! What a chance!" || conda env create --force -f "${CONDA_YAML}"
-
 # Check on environment variables: if env are missing
 message INFO "Loading 'rna-dge-salmon-deseq2' environment"
-conda activate rna-dge-salmon-deseq2 || error_handling "${LINENO}" 2 "Could not activate the environment 'rna-dge-salmon-deseq2'."
+conda activate ${CONDA_ENV} || error_handling "${LINENO}" 2 "Could not activate the environment for rna-dge-salmon-deseq2."
+
 
 # then installation process did not work properly
 echo INFO "Running pipeline if and only if it is possible"
