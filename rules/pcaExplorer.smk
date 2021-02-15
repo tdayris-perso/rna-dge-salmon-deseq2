@@ -158,7 +158,7 @@ rule pcaexplorer_pcacorrs:
         )
     wildcard_constraints:
         design = "|".join(config["models"].keys()),
-	factor = lambda wildcards: config["models"][wildcards.design]["factor"]
+        factor = lambda wildcards: config["models"][wildcards.design]["factor"]
     params:
         extra = config["params"].get("pcaexplorer_pcacorrs", "")
     log:
