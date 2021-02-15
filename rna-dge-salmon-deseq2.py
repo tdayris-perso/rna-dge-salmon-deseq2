@@ -51,6 +51,7 @@ def parser() -> argparse.ArgumentParser:
     """
     main_parser = argparse.ArgumentParser(
         description=sys.modules[__name__].__doc__,
+        formatter_class=common_script_rna_dge_salmon_deseq2.CustomFormatter,
     )
 
     subparsers = main_parser.add_subparsers()

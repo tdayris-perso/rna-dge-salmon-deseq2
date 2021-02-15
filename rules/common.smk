@@ -72,6 +72,8 @@ def get_targets(get_deseq2 : bool = False,
         "Sample_id",
         "Upstream_file",
         "Downstream_file",
+        "Upstream_name",
+        "Downstream_name",
         "Salmon",
         "Salmon_quant",
         "Unconcatenated_fq_R1_files",
@@ -104,10 +106,14 @@ def get_targets(get_deseq2 : bool = False,
             figures=["pca_scree", "distro_expr", "pcacorrs"]
         )
 
+        pca_groups = config.get("columns", None)
+        if pca_groups is None:
+            pca_groups = get_groups(design, columns_to_drop=reserved, nest=1)
+
         targets["pca"] = expand(
             "figures/{design}/pca/pca_{intgroup}_{axes}_{elipse}.png",
             design=config["models"].keys(),
-            intgroup=get_groups(design, columns_to_drop=reserved, nest=1),
+            intgroup=pca_groups,
             axes=[
                 f"ax_{a}_ax_{b}"
                 for a, b in get_axes(config["params"].get("pca_axes_depth", 4))

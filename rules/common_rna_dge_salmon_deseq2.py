@@ -54,8 +54,8 @@ def test_get_condition_dict_w() -> None:
 
 
 def get_groups(design: pandas.DataFrame,
-                  columns_to_drop: Set[str],
-                  nest: int = 2) -> Generator[str, None, None]:
+               columns_to_drop: Set[str],
+               nest: int = 2) -> Generator[str, None, None]:
     """
     Return the list of groups of interest
     """
