@@ -126,6 +126,26 @@ def parser() -> argparse.ArgumentParser:
         default=1.0,
     )
 
+    pcas = main_parser.add_argument_group("PCA")
+    pcas.add_argument(
+        "--columns",
+        help="While plotting PCAs and other graphs, samples will be colored "
+             "and annotated as belonging to a given group, according to each "
+             "column in your design file. By default, all columns "
+             "will be used ; and may result in a lot of similar graphs.",
+        default=None,
+        type=str,
+        nargs="+"
+    )
+
+    pcas.add_argument(
+        "--pca-axes-depth",
+        help="Maximum number of axes plotted in PCAs"
+             " (default: %(default)s)",
+        default=2,
+        type=int
+    )
+
     pipeline = main_parser.add_argument_group("Pipeline options")
     pipeline.add_argument(
         "--no-pca-explorer",
@@ -184,21 +204,24 @@ def parser() -> argparse.ArgumentParser:
 
     extra.add_argument(
         "--pcaexplorer-limmaquickpca2go-extra",
-        help="Extra parameters for limma pca to go in pcaExplorer",
+        help="Extra parameters for limma pca to go in pcaExplorer"
+             " (default: %(default)s)",
         type=str,
         default="organism = 'Hs'",
     )
 
     extra.add_argument(
         "--pcaexplorer-distro-expr-extra",
-        help="Extra parameters for pcaExplorer's expression distribution plot",
+        help="Extra parameters for pcaExplorer's expression distribution plot"
+             " (default: %(default)s)",
         type=str,
         default="plot_type='density'",
     )
 
     extra.add_argument(
         "--pcaexplorer-scree-extra",
-        help="Extra parameters for PCA scree in pcaExplorer",
+        help="Extra parameters for PCA scree in pcaExplorer"
+             " (default: %(default)s)",
         type=str,
         default="type='pev', pc_nr=10",
     )
@@ -206,23 +229,17 @@ def parser() -> argparse.ArgumentParser:
     extra.add_argument(
         "--pcaexplorer-pcacorrs-extra",
         help="Extra parameters for PCA axes correlations "
-        "with experimental design",
+             "with experimental design (default: %(default)s)",
         type=str,
         default="pc=1",
     )
 
     extra.add_argument(
         "--pcaexplorer-pair-corr-extra",
-        help="Extra parameters for PCA sample correlations",
+        help="Extra parameters for PCA sample correlations"
+             " (default: %(default)s)",
         type=str,
         default="use_subset=TRUE, log=FALSE",
-    )
-
-    extra.add_argument(
-        "--pca-axes-depth",
-        help="Maximum number of axes plotted in PCAs",
-        default=2,
-        type=int
     )
 
     # Logging options
@@ -260,6 +277,7 @@ def test_parse_args() -> None:
     expected = argparse.Namespace(
         alpha_threshold=0.05,
         cold_storage=[' '],
+        columns=None,
         copy_extra='--verbose',
         debug=True,
         deseq2_extra='quiet=FALSE',
@@ -331,6 +349,7 @@ def args_to_dict(args: argparse.ArgumentParser) -> Dict[str, Any]:
             "pca_axes_depth": args.pca_axes_depth
         },
         "models": models,
+        "columns": args.columns
     }
 
     logging.debug(result_dict)
@@ -375,7 +394,8 @@ def test_args_to_dict() -> None:
                 "denominator": "A",
                 "formula": "~Condition"
             }
-        }
+        },
+        "columns": None
     }
     tested = args_to_dict(parse(shlex.split("/path/to/file.gtf --debug ")))
     assert tested == expected
