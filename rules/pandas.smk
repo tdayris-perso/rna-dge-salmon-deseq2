@@ -22,13 +22,10 @@ rule clean_coldata:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        filter_column = [
-            "Sample_id",
-            "Salmon_quant",
-            "Upstream_file",
-            "Downstream_file",
-            "Salmon"
-        ]
+        filter_column = filter_design_columns(
+            design.columns.tolist(),
+            config.get("columns", None)
+        )
     log:
         "logs/design_filter/design_filter.log"
     wrapper:

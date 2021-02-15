@@ -31,6 +31,27 @@ def test_get_gtf_path() -> None:
     assert expected == tested
 
 
+def filter_design_columns(factors: List[str],
+                          keep: Optional[List[str]] = None) -> List[str]:
+    """
+    Return the complement: factors - keep
+    """
+    if keep is None:
+        keep = [
+            "Sample_id",
+            "Upstream_file",
+            "Downstream_file",
+            "Upstream_name",
+            "Downstream_name",
+            "Salmon",
+            "Salmon_quant",
+            "Unconcatenated_fq_R1_files",
+            "Unconcatenated_fq_R2_files"
+        ]
+        return list(set(factors) & set(keep))
+    return list(set(factors) - set(keep))
+
+
 def get_condition_dict_w(factor: Any, design: pandas.DataFrame) -> Dict[str, str]:
     """
     Return a dictionnary with:
