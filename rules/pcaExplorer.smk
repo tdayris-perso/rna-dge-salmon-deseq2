@@ -87,7 +87,9 @@ rule distro_expr:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        extra = config["params"].get("pcaexplorer_distro_expr", "")
+        extra = config["params"].get("pcaexplorer_distro_expr", ""),
+        w = config["params"].get("plot_width", 1024),
+        h = config["params"].get("plot_height", 768)
     wildcard_constraints:
         design = "|".join(config["models"].keys())
     log:
@@ -122,7 +124,9 @@ rule pca_scree:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        extra = config["params"].get("pcaexplorer_scree", "")
+        extra = config["params"].get("pcaexplorer_scree", ""),
+        w = config["params"].get("plot_width", 1024),
+        h = config["params"].get("plot_height", 768)
     wildcard_constraints:
         design = "|".join(config["models"].keys())
     log:
@@ -160,7 +164,9 @@ rule pcaexplorer_pcacorrs:
         design = "|".join(config["models"].keys()),
         factor = lambda wildcards: config["models"][wildcards.design]["factor"]
     params:
-        extra = config["params"].get("pcaexplorer_pcacorrs", "")
+        extra = config["params"].get("pcaexplorer_pcacorrs", ""),
+        w = config["params"].get("plot_width", 1024),
+        h = config["params"].get("plot_height", 768)
     log:
         "logs/pcaexplorer/{design}_pcacorrs.log"
     wrapper:
@@ -196,7 +202,9 @@ rule pcaexplorer_pca:
     params:
         extra = (
             lambda wildcards: f"intgroup = c('{wildcards.intgroup}'), ntop = 100, pcX = {wildcards.a}, pcY = {wildcards.b}, ellipse = {'TRUE' if wildcards.elipse == 'with_elipse' else 'FALSE'}"
-        )
+        ),
+        w = config["params"].get("plot_width", 1024),
+        h = config["params"].get("plot_height", 768)
     log:
         "logs/pcaexplorer/PCA/design_{design}_ingroup_{intgroup}_ax_{a}_{b}_{elipse}.log"
     wrapper:
@@ -228,7 +236,9 @@ rule pcaexplorer_pair_corr:
             lambda wildcards, attempt: min(attempt * 20, 200)
         )
     params:
-        extra = config["params"].get("pcaexplorer_pair_corr", "pc=1")
+        extra = config["params"].get("pcaexplorer_pair_corr", "pc=1"),
+        w = config["params"].get("plot_width", 1024),
+        h = config["params"].get("plot_height", 768)
     log:
         "logs/pcaexplorer/pairwise_scatterplot/{design}.log"
     wrapper:
