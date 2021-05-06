@@ -165,6 +165,7 @@ rule pcaexplorer_pcacorrs:
         factor = lambda wildcards: config["models"][wildcards.design]["factor"]
     params:
         extra = config["params"].get("pcaexplorer_pcacorrs", ""),
+        factor = lambda wildcards: config["models"][wildcards.design]["factor"],
         w = config["params"].get("plot_width", 1024),
         h = config["params"].get("plot_height", 768)
     log:
