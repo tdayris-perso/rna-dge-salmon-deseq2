@@ -48,7 +48,8 @@ rule deseq:
         rds = "deseq2/{design}/Wald_{design}.RDS",
         deseq2_tsv = "deseq2/{design}/DESeq2_{design}.tsv",
         normalized_counts = "deseq2/{design}/normalized_counts.tsv",
-        dst = "deseq2/{design}/dst_{design}.RDS"
+        dst = "deseq2/{design}/dst_{design}.RDS",
+        deseq2_result_dir = directory("deseq2/{design}/deseq2_results")
     message:
         "Performing DESeq2 analysis over {wildcards.design}"
     threads:
@@ -61,6 +62,11 @@ rule deseq:
             lambda wildcards, attempt: attempt * 20
         )
     params:
+        contrast = lambda w: [
+            config["models"][w.design]["factor"],
+            config["models"][w.design]["numerator"],
+            config["models"][w.design]["denominator"]
+        ],
         extra = config["params"].get("DESeq2_DESeq_extra", ""),
         factor = lambda w: config["models"][w.design]["factor"],
         numerator = lambda w: config["models"][w.design]["numerator"],
