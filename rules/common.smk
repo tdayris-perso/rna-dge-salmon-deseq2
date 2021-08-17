@@ -153,7 +153,7 @@ def get_targets(get_deseq2 : bool = False,
 
     if add_target(config, "multiqc", get_multiqc) and multiqc_flag:
         targets["multiqc"] = expand(
-            "multiqc/{design}/multiqc_config.yaml",
+            "multiqc/{design}/report.html",
             design=config["models"].keys()
         )
 
