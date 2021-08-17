@@ -48,7 +48,7 @@ rule multiqc:
             "multiqc/{design}/pairwise_scatterplot_mqc.png",
             "multiqc/{design}/volcanoplot_mqc.png",
             "multiqc/{design}/distro_expr_mqc.png",
-            "multiqc/{design}/ma_plot_mqc.png",
+            #"multiqc/{design}/ma_plot_mqc.png",
             "multiqc/{design}/pca_axes_correlation_mqc.png"
         ],
         salmon = design.Salmon.tolist()
