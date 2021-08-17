@@ -70,7 +70,7 @@ rule deseq:
         extra = config["params"].get("DESeq2_DESeq_extra", ""),
         factor = lambda w: config["models"][w.design]["factor"],
         numerator = lambda w: config["models"][w.design]["numerator"],
-        denominator = lambda w: config["models"][w.design]["denominator"],
+        denominator = lambda w: config["models"][w.design]["denominator"]
     log:
         "logs/deseq2/deseq/{design}.log"
     wrapper:
