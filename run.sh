@@ -68,7 +68,7 @@ function help_message() {
   message DOC "                   (2) = the tested confition."
   message DOC "                   (3) = the reference condition."
   message DOC "                   (4) = the R formula"
-  message DOC "                   Default: 'Condtion,B,A,~Condition'"
+  message DOC "                   Default: 'Condition,B,A,~Condition'"
   message DOC "-s | --salmon      Path to salmon quantification directory"
   message DOC "                   default: ${PWD}"
   message DOC "Otherwise, run me without any arguments and I'll do magic."
@@ -79,7 +79,7 @@ function help_message() {
 }
 
 DESIGN_PATH="exp-design.tsv"
-MODELS='Condtion,B,A,~Condition'
+MODELS='Condition,B,A,~Condition'
 QUANT_DIR="${PWD}"
 CONDA_YAML="/mnt/beegfs/pipelines/rna-dge-salmon-deseq2/pipeline/rna-dge-salmon-deseq2/envs/workflow_flamingo.yaml"
 
